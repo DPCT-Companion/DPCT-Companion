@@ -8,14 +8,16 @@
 
 [Docker SDK for Python](https://pypi.org/project/docker/)
 
-## Build
+## Build & Run
+
+```
+python run.py <project_path> [<arg0>... <argN>] <src0>... <srcN>
+```
+
+The script will build automatically if the Docker image does not exist. This may take about 20 minutes.
+
+## Build Manually
 
 ```
 docker build -t patcher patcher
-```
-
-## Run
-
-```
-python3 run.py <project path>
 ```

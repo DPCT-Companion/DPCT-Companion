@@ -1,6 +1,5 @@
 from os import path
 from sys import argv
-from tkinter.tix import Tree
 import docker
 
 IMG_NAME = "patcher"

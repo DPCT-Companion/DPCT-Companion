@@ -16,7 +16,7 @@ client = docker.from_env()
 try:
     client.images.get(IMG_NAME)
 except docker.errors.ImageNotFound:
-    print("Building the image. This may take about more than 20 minutes.")
+    print("Building the image. This may take about more than 30 minutes.")
     srcPath = path.dirname(path.realpath(__file__))
     client.images.build(path=path.join(srcPath, "patcher"), tag=IMG_NAME)
     print("Build success.")

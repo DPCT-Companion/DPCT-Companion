@@ -1,6 +1,6 @@
 from os import system
 from sys import argv
-system(f"cd data && dpct {''.join(argv[1:])}")
+system(f"cd data && dpct {' '.join(argv[1:])}")
 
 from re import compile
 pattern = compile("/*\n *DPCT(\d{4}):\d+: ")

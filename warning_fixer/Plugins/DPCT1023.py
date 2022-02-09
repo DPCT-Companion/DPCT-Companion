@@ -5,6 +5,9 @@
     Input dpcxx_code_line: The line of valid code immediately following the warning (I would recommend to use ";" for delimiter, since the code can technically span more than one line)
     
     Output: A string which contains fixed lines of code. None on error.
+    
+    LIMITATION: NVIDIA CUDA apps mostly assume a warp size of 32, so masks are mostly indicating 32 lanes as well. For this warning to *POSSIBLY* be fixed, our DPC++ kernel MUST BE launched using 32-thread-wide SIMD subgroups.
+    If subgroup size is not 32, even manually fixing it will be a big headache.
 '''
 
 import re

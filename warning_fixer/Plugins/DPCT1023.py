@@ -15,7 +15,7 @@ import re
 class DPCT1023:
 
     known_full_mask_name = set("FULL_MASK", "0xffff'ffffu")
-    fix_skeleton = "sycl::ext::oneapi::sub_group sg_DPCTCOM = item_ct1.get_sub_group();\nint sgId_DPCTCOM = sg_DPCTCOM.get_local_id()[0];\nif ((1 << sgId_DPCTCOM) & {})\n{{\n    {}\n}}\n"
+    fix_skeleton = "{} = {};\nsycl::ext::oneapi::sub_group sg_DPCTCOM = item_ct1.get_sub_group();\nint sgId_DPCTCOM = sg_DPCTCOM.get_local_id()[0];\nif ((1 << sgId_DPCTCOM) & {})\n{{\n    {}\n}}\n"
 
     def __init__(self, cuda_code_line: str, dpcxx_code_line: str):
         self.cuda_code_line = cuda_code_line
@@ -29,12 +29,20 @@ class DPCT1023:
         self.normalize_input()
 
         # Regex pattern to get the mask variable / constant from the original CUDA line of code.
-        mask_var_patt = re.compile(r".*\( ?(\S+) ?,.*")
-        result = re.search(mask_var_patt, self.cuda_code_line)
-        if result:
+        mask_var_patt = re.compile(r".*\( ?(\S+) ?, ?(\S+) ?.*")
+        dpcxx_ret_patt = re.compile(r"(\S+) ?= ?.*")
+        mask_result = re.search(mask_var_patt, self.cuda_code_line)
+        dpcxx_ret_result = re.search(dpcxx_ret_patt, self.dpcxx_code_line)
+        if mask_result:
 
             # Mask variable / constant
-            mask_var_name = result.group(1)
+            mask_var_name = mask_result.group(1)
+
+            # Shuffle target variable
+            source_var_name = mask_result.group(2)
+
+            # DPC++ sub-group return variable
+            ret_var_name = dpcxx_ret_result.group(1)
 
             # Full mask, no fix necessary.
             if mask_var_name in self.known_full_mask_name:
@@ -42,6 +50,6 @@ class DPCT1023:
 
             # Not full mask (or does not recognize that it is full mask), insert conditional statement.
             else:
-                return self.fix_skeleton.format(mask_var_name, self.dpcxx_code_line)
+                return self.fix_skeleton.format(ret_var_name, source_var_name, mask_var_name, self.dpcxx_code_line)
         else:
             return None

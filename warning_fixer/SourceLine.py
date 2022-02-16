@@ -3,7 +3,7 @@ import re
 
 class SourceLine:
     def __init__(self, index, line):
-        self.index = index
+        # self.index = index
         self.line = line
         self.warning_code = None
         self.get_warning_code()

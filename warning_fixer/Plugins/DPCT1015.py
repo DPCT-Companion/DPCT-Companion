@@ -3,7 +3,7 @@ import re
 class DPCT1015:
     # pattern for format specifiers in format string
     # see https://www.cplusplus.com/reference/cstdio/printf/ for details
-    format_specifier_regex = "%[-+#0 ]?[diuoxXfFeEgGaAcspn%]"
+    format_specifier_regex = "%[-+#0 ]?(?:\d+|\*)?(?:.\d+|.\*)?(?:hh|h|l|ll|j|z|t|L)?[diuoxXfFeEgGaAcspn%]"
     format_specifier_pattern = re.compile(format_specifier_regex)
     str_literal_regex = "\"([^\\\"]|\\.)*\""
     str_literal_pattern = re.compile(str_literal_regex)
@@ -35,7 +35,7 @@ class DPCT1015:
         i = 0
         while True:
             if i >= len(format_match): break
-            if format_match[i] == "%%":
+            if format_match[i][0] == "%%":
                 del format_match[i]
                 format_split[i] = format_split[i] + '%' + format_split[i+1]
                 del format_split[i+1]
@@ -49,5 +49,4 @@ class DPCT1015:
 if __name__ == "__main__":
     # the printf statement occurs in racon
     print(repr(DPCT1015.fix("printf(\"assert: lhs=%d, rhs=%d\n\", x, y);")))
-    print(repr(DPCT1015.stream_style("assert: lhs=%d, rhs=%d\n", "x", "y")))
-    print(repr(DPCT1015.arg_list_regex))
+    print(repr(DPCT1015.fix("""printf("assert: lhs=%+13.33jd, rhs=%-*.*hhd\n", x, y);""")))

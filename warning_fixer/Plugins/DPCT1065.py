@@ -17,7 +17,6 @@ class DPCT1065(BaseFixer):
         temp_code, i = self.find_warning_statement(start, end)
 
         new_code = temp_code
-        # TODO: another type
         regex = r"(\S+)(\.barrier)(\()(\))"
         result = re.search(regex, temp_code)
         if result:

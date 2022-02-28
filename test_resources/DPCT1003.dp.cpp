@@ -15,4 +15,7 @@
         GW_CU_CHECK_ERR((ptr = (void *)sycl::malloc_device(n * sizeof(T),
                                                      dpct::get_default_queue()),
                    0));
-
+        /*
+        DPCT1015:63: Output needs adjustment.
+        */
+        stream_ct1 << "assert: lhs=%d, rhs=%d\n";

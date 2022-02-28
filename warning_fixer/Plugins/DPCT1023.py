@@ -12,21 +12,30 @@
 
 import re
 
-class DPCT1023:
+from warning_fixer.Plugins.BaseFixer import BaseFixer
+from warning_fixer.SourceLine import SourceLine
 
-    known_full_mask_name = set("FULL_MASK", "0xffff'ffffu")
+
+class DPCT1023(BaseFixer):
+
+    known_full_mask_name = set(["FULL_MASK", "0xffff'ffffu"])
     fix_skeleton = "{} = {};\nsycl::ext::oneapi::sub_group sg_DPCTCOM = item_ct1.get_sub_group();\nint sgId_DPCTCOM = sg_DPCTCOM.get_local_id()[0];\nif ((1 << sgId_DPCTCOM) & {})\n{{\n    {}\n}}\n"
 
-    def __init__(self, cuda_code_line: str, dpcxx_code_line: str):
+    def __init__(self, source_lines, cuda_code_line):
+        super().__init__(source_lines)
         self.cuda_code_line = cuda_code_line
-        self.dpcxx_code_line = dpcxx_code_line
+        self.dpcxx_code_line = ""
 
     def normalize_input(self):
         self.cuda_code_line = " ".join(self.cuda_code_line.split()).strip()
         self.dpcxx_code_line = " ".join(self.dpcxx_code_line.split()).strip()
 
-    def fix(self):
+    def fix(self, start, end):
+        temp_lines = self.source_lines
+        temp_code, i = self.find_warning_statement(start, end)
+        self.dpcxx_code_line = temp_code
         self.normalize_input()
+        new_code = self.dpcxx_code_line
 
         # Regex pattern to get the mask variable / constant from the original CUDA line of code.
         mask_var_patt = re.compile(r".*\( ?(\S+) ?, ?(\S+) ?.*")
@@ -46,10 +55,13 @@ class DPCT1023:
 
             # Full mask, no fix necessary.
             if mask_var_name in self.known_full_mask_name:
-                return self.dpcxx_code_line
+                new_code = self.dpcxx_code_line
 
             # Not full mask (or does not recognize that it is full mask), insert conditional statement.
             else:
-                return self.fix_skeleton.format(ret_var_name, source_var_name, mask_var_name, self.dpcxx_code_line)
-        else:
-            return None
+                new_code = self.fix_skeleton.format(ret_var_name, source_var_name, mask_var_name, self.dpcxx_code_line)
+
+        del temp_lines[end + 1: i + 1]
+        del temp_lines[start:end + 1]
+        temp_lines.insert(start, SourceLine(start, new_code))
+        self.source_lines = temp_lines

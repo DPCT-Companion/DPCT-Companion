@@ -10,7 +10,6 @@ class DPCT1003(BaseFixer):
 
     def fix(self, start, end):
         temp_lines = self.source_lines
-        
         temp_code, i = self.find_warning_statement(start, end)
 
         new_code = temp_code

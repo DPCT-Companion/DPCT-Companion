@@ -1,0 +1,1 @@
+printf("assert: lhs=%d, rhs=%d\n", x, y);

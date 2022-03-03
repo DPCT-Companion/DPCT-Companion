@@ -1,6 +1,5 @@
 import logging
 import re
-import sys
 
 from warning_fixer.CUDAFile import CUDAFile
 from warning_fixer.Plugins.DPCT1003 import DPCT1003
@@ -30,8 +29,12 @@ class SourceFile:
         self.lines = []
         for i, l in enumerate(lines):
             self.lines.append(SourceLine(i, l))
-        self.cuda_file = CUDAFile(cuda_path)
-        self.warning_map = cuda_warning_map
+        if cuda_path != "":
+            self.cuda_file = CUDAFile(cuda_path)
+            self.warning_map = cuda_warning_map
+        else:
+            self.cuda_file = None
+            self.warning_map = None
 
     def get_next_warning(self, begin=0):
         for i, line in enumerate(self.lines[begin:]):
@@ -61,32 +64,40 @@ class SourceFile:
             if code == "" or start == -1 or end == -1:
                 break
             if code == "DPCT1003":
-                fixer = DPCT1003(self.lines)
-                fixer.fix(start, end)
+                fixer = DPCT1003(self.lines, start, end)
+                fixer.fix()
                 self.lines = fixer.source_lines
                 begin = start + 1
 
             elif code == "DPCT1015":
+                if not self.cuda_file and not self.warning_map:
+                    logging.warning("Cannot fix DPCT1015 without related CUDA source file")
+                    begin += 1
+                    continue
                 key = code + ":" + lineno
                 if key not in self.warning_map:
                     logging.error("Cannot find warning", key, "in file", self.path)
                 cuda_statement = self.cuda_file.get_statement_from_line_no(self.warning_map[key])
-                fixer = DPCT1015(self.lines, cuda_statement)
-                fixer.fix(start, end)
+                fixer = DPCT1015(self.lines, cuda_statement, start, end)
+                fixer.fix()
                 begin = start + 1
 
             elif code == "DPCT1023":
+                if not self.cuda_file and not self.warning_map:
+                    logging.warning("Cannot fix DPCT1023 without related CUDA source file")
+                    begin += 1
+                    continue
                 key = code + ":" + lineno
                 if key not in self.warning_map:
                     logging.error("Cannot find warning", key, "in file", self.path)
                 cuda_statement = self.cuda_file.get_statement_from_line_no(self.warning_map[key])
-                fixer = DPCT1023(self.lines, cuda_statement)
-                fixer.fix(start, end)
+                fixer = DPCT1023(self.lines, cuda_statement, start, end)
+                fixer.fix()
                 begin = start + 1
 
             elif code == "DPCT1065":
-                fixer = DPCT1065(self.lines)
-                fixer.fix(start, end)
+                fixer = DPCT1065(self.lines, start, end)
+                fixer.fix()
                 self.lines = fixer.source_lines
                 begin = start + 1
 

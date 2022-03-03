@@ -13,7 +13,6 @@
 import re
 
 from warning_fixer.Plugins.BaseFixer import BaseFixer
-from warning_fixer.SourceLine import SourceLine
 
 
 class DPCT1023(BaseFixer):
@@ -21,25 +20,25 @@ class DPCT1023(BaseFixer):
     known_full_mask_name = set(["FULL_MASK", "0xffff'ffffu"])
     fix_skeleton = "{} = {};\nsycl::ext::oneapi::sub_group sg_DPCTCOM = item_ct1.get_sub_group();\nint sgId_DPCTCOM = sg_DPCTCOM.get_local_id()[0];\nif ((1 << sgId_DPCTCOM) & {})\n{{\n    {}\n}}\n"
 
-    def __init__(self, source_lines, cuda_code_line):
-        super().__init__(source_lines)
+    def __init__(self, source_lines, cuda_code_line, start, end):
+        super().__init__(source_lines, start, end)
         self.cuda_code_line = cuda_code_line
         self.dpcxx_code_line = ""
+        self.fixing_code = "DPCT1023"
 
     def normalize_input(self):
         self.cuda_code_line = " ".join(self.cuda_code_line.split()).strip()
         self.dpcxx_code_line = " ".join(self.dpcxx_code_line.split()).strip()
 
-    def fix(self, start, end):
-        temp_lines = self.source_lines
-        temp_code, i = self.find_warning_statement(start, end)
+    def fix(self):
+        temp_code, statement_start, statement_end, consecutive_warnings = self.find_warning_statement()
         self.dpcxx_code_line = temp_code
         self.normalize_input()
         new_code = self.dpcxx_code_line
 
         # Regex pattern to get the mask variable / constant from the original CUDA line of code.
-        mask_var_patt = re.compile(r".*\( ?(\S+) ?, ?(\S+) ?.*")
-        dpcxx_ret_patt = re.compile(r"(\S+) ?= ?.*")
+        mask_var_patt = re.compile(r".*\(\s*(\S+)\s*,\s*(\S+),.*")
+        dpcxx_ret_patt = re.compile(r"(\S+)\s*=.*")
         mask_result = re.search(mask_var_patt, self.cuda_code_line)
         dpcxx_ret_result = re.search(dpcxx_ret_patt, self.dpcxx_code_line)
         if mask_result:
@@ -55,13 +54,10 @@ class DPCT1023(BaseFixer):
 
             # Full mask, no fix necessary.
             if mask_var_name in self.known_full_mask_name:
-                new_code = self.dpcxx_code_line
+                new_code = temp_code + "\n"
 
             # Not full mask (or does not recognize that it is full mask), insert conditional statement.
             else:
                 new_code = self.fix_skeleton.format(ret_var_name, source_var_name, mask_var_name, self.dpcxx_code_line)
 
-        del temp_lines[end + 1: i + 1]
-        del temp_lines[start:end + 1]
-        temp_lines.insert(start, SourceLine(start, new_code))
-        self.source_lines = temp_lines
+        self.replace_code(new_code, statement_start, statement_end, consecutive_warnings)

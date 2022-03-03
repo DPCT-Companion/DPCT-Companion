@@ -1,7 +1,6 @@
 import re
 
 from warning_fixer.Plugins.BaseFixer import BaseFixer
-from warning_fixer.SourceLine import SourceLine
 
 
 class DPCT1015(BaseFixer):
@@ -19,18 +18,15 @@ class DPCT1015(BaseFixer):
     arg_list_regex = f"{arg_regex}({arg_list_aux_regex})*"
     printf_regex = f"[\s\n\t]*printf[\s\n\t]*\([\s\n\t]*({arg_list_regex})[\s\n\t]*\);"
 
-    def __init__(self, source_lines, cuda_code_line):
-        super().__init__(source_lines)
+    def __init__(self, source_lines, cuda_code_line, start, end):
+        super().__init__(source_lines, start, end)
         self.cuda_code_line = cuda_code_line
+        self.fixing_code = "DPCT1015"
 
-    def fix(self, start, end):
-        temp_lines = self.source_lines
-        line, i = self.find_warning_statement(start, end)
+    def fix(self):
+        statement, statement_start, statement_end, consecutive_warnings = self.find_warning_statement()
         new_code = self._fix(self.cuda_code_line)
-        del temp_lines[end + 1: i + 1]
-        del temp_lines[start:end + 1]
-        temp_lines.insert(start, SourceLine(start, new_code))
-        self.source_lines = temp_lines
+        self.replace_code(new_code, statement_start, statement_end, consecutive_warnings)
 
     def _fix(self, line):
         args = [group[0] for group in DPCT1015.arg_pattern.findall(line)]
@@ -61,7 +57,7 @@ class DPCT1015(BaseFixer):
             if len(format_split[i]) > 0: ret += " << \"" + format_split[i] + "\""
             ret += " << " + args[i]
         if len(format_split[-1]) > 0: ret += " << \"" + format_split[-1] + "\"" + ';'
-        return ret
+        return ret + "\n"
 
 # if __name__ == "__main__":
 #     # the printf statement occurs in racon

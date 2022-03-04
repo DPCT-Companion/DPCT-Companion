@@ -71,7 +71,7 @@ class SourceFile:
 
             elif code == "DPCT1015":
                 if not self.cuda_file and not self.warning_map:
-                    logging.warning("Cannot fix DPCT1015 without related CUDA source file")
+                    logging.warning("Cannot fix DPCT1015 in file " + self.path + " without related CUDA source file")
                     begin += 1
                     continue
                 key = code + ":" + lineno
@@ -84,7 +84,7 @@ class SourceFile:
 
             elif code == "DPCT1023":
                 if not self.cuda_file and not self.warning_map:
-                    logging.warning("Cannot fix DPCT1023 without related CUDA source file")
+                    logging.warning("Cannot fix DPCT1023 in file " + self.path + " without related CUDA source file")
                     begin += 1
                     continue
                 key = code + ":" + lineno

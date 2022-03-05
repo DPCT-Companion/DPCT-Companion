@@ -2,11 +2,13 @@ import os
 import asyncio
 
 class Check:
+    """contains results for a single check 'stdin-check' / 'stderr-check'
+    """
     def __init__(self, o1, o2, omit_line=None):
         self.omit_line = omit_line if omit_line else []
-        self.pass_check = True
-        self.o1 = o1
-        self.o2 = o2
+        self.pass_check = True  # does the check pass ?
+        self.o1 = o1            # output of cuda
+        self.o2 = o2            # output of dpcpp
         self.check()
     def check(self):
         lines1 = self.o1.split('\n')
@@ -72,6 +74,16 @@ async def get_all_tests(test_cases : list, cuda_exec : str, dpcpp_exec : str):
     return results
 
 def test(test_cases: list, cuda_exec : str, dpcpp_exec: str) -> any:
+    """generate test results
+
+    Args:
+        test_cases (list): list of loaded objects from yaml test files
+        cuda_exec (str): path of cuda executable
+        dpcpp_exec (str): path of dpcpp executable
+
+    Returns:
+        [[Check]]: results of each test for each yaml test file
+    """
     loop = asyncio.get_event_loop()
     cuda_exec_abs_path = os.path.abspath(cuda_exec)
     dpcpp_exec_abs_path= os.path.abspath(dpcpp_exec)

@@ -37,11 +37,11 @@ class DPCT1023(BaseFixer):
         new_code = self.dpcxx_code_line
 
         # Regex pattern to get the mask variable / constant from the original CUDA line of code.
-        mask_var_patt = re.compile(r".*\(\s*(\S+)\s*,\s*(\S+),.*")
-        dpcxx_ret_patt = re.compile(r"(\S+)\s*=.*")
+        mask_var_patt = re.compile(r"[\s\S]*\(\s*(\S+)\s*,\s*(\S+)\s*,[\s\S]*")
+        dpcxx_ret_patt = re.compile(r"[\s\S]*?(\S+)\s*=[\s\S]*")
         mask_result = re.search(mask_var_patt, self.cuda_code_line)
         dpcxx_ret_result = re.search(dpcxx_ret_patt, self.dpcxx_code_line)
-        if mask_result:
+        if mask_result is not None & dpcxx_ret_result is not None:
 
             # Mask variable / constant
             mask_var_name = mask_result.group(1)

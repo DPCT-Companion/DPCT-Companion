@@ -4,11 +4,12 @@ import asyncio
 class Check:
     """contains results for a single check 'stdin-check' / 'stderr-check'
     """
-    def __init__(self, o1, o2, omit_line=None):
+    def __init__(self, o1, o2, omit_line=None, name=None):
         self.omit_line = omit_line if omit_line else []
         self.pass_check = True  # does the check pass ?
         self.o1 = o1            # output of cuda
         self.o2 = o2            # output of dpcpp
+        self.name = name
         self.check()
     def check(self):
         lines1 = self.o1.split('\n')
@@ -51,20 +52,29 @@ async def get_tests(steps : list, cuda_exec : str, dpcpp_exec : str):
     cuda_out = await get_outputs(steps, exec=cuda_exec)
     dpcpp_out = await get_outputs(steps, exec=dpcpp_exec)
     omit_lines = []
+    names = []
     for step in steps:
         if 'check-stdout' in step:
             v = step['check-stdout']
             omit_line = []
+            name = None
             if v != None and 'omit-line' in v:
                 omit_line = v['omit-line']
+            if v != None and 'name' in v:
+                name = v['name']
+            names.append(name)
             omit_lines.append(omit_line)
         elif 'check-stderr' in step:
             v = step['check-stderr']
             omit_line = []
+            name = None
             if v != None and 'omit-line' in v:
                 omit_line = v['omit-line']
+            if v != None and 'name' in v:
+                name = v['name']
+            names.append(name)
             omit_lines.append(omit_line)
-    checks = [Check(o1, o2, omit_line) for o1, o2, omit_line in zip(cuda_out, dpcpp_out, omit_lines)]
+    checks = [Check(o1, o2, omit_line=omit_line, name=name) for o1, o2, omit_line, name in zip(cuda_out, dpcpp_out, omit_lines, names)]
     return checks
 
 async def get_all_tests(test_cases : list, cuda_exec : str, dpcpp_exec : str):

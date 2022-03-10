@@ -13,7 +13,7 @@ class SourceProject:
         self.dpcpp_root_path = dpcpp_root_path
         self.cuda_root_path = cuda_root_path
         self.all_dpct_files = filter(
-            lambda path: path.is_file() and not any([part for part in path.parts if part.startswith(".")]),
+            lambda path: path.is_file() and not any([part for part in path.resolve().parts if part.startswith(".")]),
             Path(self.dpcpp_root_path).rglob("*"))
         self.output_path = output_path
 

@@ -1,3 +1,4 @@
+import argparse
 import re
 from pathlib import Path
 
@@ -63,8 +64,19 @@ class SourceProject:
 
 
 if __name__ == "__main__":
-    project = SourceProject(dpcpp_root_path="/Users/tczhang/Desktop/0102/racon2/build/dpcpp",
-                            cuda_root_path="/Users/tczhang/Desktop/0102/racon2",
-                            output_path="/Users/tczhang/Desktop/0102/racon2/migrated",
-                            log_path="/Users/tczhang/Desktop/0102/racon2/build/racon_dpct_local.log")
-    project.fix_project_warnings()
+    parser = argparse.ArgumentParser(description="Warning fixer of DPCT-Companion")
+    parser.add_argument("--dpcpp-root-path", type=str, help="Path of dpct out-root")
+    parser.add_argument("--cuda-root-path", type=str, help="Path of dpct in-root")
+    parser.add_argument("--output-path", type=str, help="Output path for the fixed code")
+    parser.add_argument("--log-path", type=str, help="Path of dpct log")
+    args = parser.parse_args()
+
+    if args.dpcpp_root_path and args.cuda_root_path and args.output_path and args.log_path:
+
+        project = SourceProject(dpcpp_root_path=args.dpcpp_root_path,
+                                cuda_root_path=args.cuda_root_path,
+                                output_path=args.output_path,
+                                log_path=args.log_path)
+        project.fix_project_warnings()
+    else:
+        parser.print_usage()

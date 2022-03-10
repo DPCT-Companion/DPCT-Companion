@@ -41,7 +41,7 @@ class DPCT1023(BaseFixer):
         dpcxx_ret_patt = re.compile(r"[\s\S]*?(\S+)\s*=[\s\S]*")
         mask_result = re.search(mask_var_patt, self.cuda_code_line)
         dpcxx_ret_result = re.search(dpcxx_ret_patt, self.dpcxx_code_line)
-        if mask_result is not None & dpcxx_ret_result is not None:
+        if mask_result is not None and dpcxx_ret_result is not None:
 
             # Mask variable / constant
             mask_var_name = mask_result.group(1)

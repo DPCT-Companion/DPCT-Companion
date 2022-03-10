@@ -27,3 +27,10 @@
         DPCT1015:63: Output needs adjustment.
         */
         stream_ct1 << "assert: lhs=%d, rhs=%d\n";
+
+        /*
+        DPCT1003:15: Migrated API does not return error code. (*, 0) is
+        inserted. You may need to rewrite this code.
+        */
+        GW_CU_CHECK_ERR(
+        (num_devices_ = dpct::dev_mgr::instance().device_count(), 0));

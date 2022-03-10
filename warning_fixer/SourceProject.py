@@ -5,15 +5,15 @@ from warning_fixer.SourceFile import SourceFile
 
 
 class SourceProject:
-    dpct_ext = ["*.dp.cpp", "*.dp.hpp"]
+    dpct_ext = [".hpp", ".h", ".hxx", ".dp.cpp"]
     warning_log_regex = r"(.*):(\d+):\d+: warning: (DPCT\d+:\d+): .*"
 
     def __init__(self, dpcpp_root_path, cuda_root_path, output_path, log_path):
         self.dpcpp_root_path = dpcpp_root_path
         self.cuda_root_path = cuda_root_path
-        self.all_dpct_files = []
-        for ext in self.dpct_ext:
-            self.all_dpct_files += list(Path(self.dpcpp_root_path).rglob(ext))
+        self.all_dpct_files = filter(
+            lambda path: path.is_file() and not any([part for part in path.parts if part.startswith(".")]),
+            Path(self.dpcpp_root_path).rglob("*"))
         self.output_path = output_path
 
         with open(log_path, "r") as f:
@@ -30,19 +30,31 @@ class SourceProject:
 
     def fix_project_warnings(self):
         for file in self.all_dpct_files:
+            is_cuda_file = False
+            for ext in self.dpct_ext:
+                if str(file).endswith(ext):
+                    is_cuda_file = True
+                    break
             cuda_path = str(Path(self.cuda_root_path).joinpath(file.relative_to(self.dpcpp_root_path)))
-            if cuda_path[-6:] == "dp.hpp":
-                cuda_path = cuda_path[:-6] + "cuh"
-            elif cuda_path[-6:] == "dp.cpp":
-                cuda_path = cuda_path[:-6] + "cu"
-            if str(cuda_path) in self.cuda_file_warning_map:
-                fixer = SourceFile(str(file), cuda_path, self.cuda_file_warning_map[cuda_path])
+            if not is_cuda_file:
+                with open(file, "r") as f:
+                    new_file_content = f.read()
             else:
-                if "cudapoa_nw_banded" in cuda_path:
-                    print("here")
-                fixer = SourceFile(str(file), "", {})
-            fixer.fix_warnings()
-            new_file_content = "".join([l.line for l in fixer.lines])
+                if cuda_path.endswith(".dp.hpp"):
+                    cuda_path = cuda_path[:-6] + "cuh"
+                elif (cuda_path.endswith(".cpp.dp.cpp") or
+                      cuda_path.endswith(".cc.dp.cpp") or
+                      cuda_path.endswith(".cxx.dp.cpp") or
+                      cuda_path.endswith(".C.dp.cpp")):
+                    cuda_path = cuda_path[:-7]
+                elif cuda_path.endswith(".dp.cpp"):
+                    cuda_path = cuda_path[:-6] + "cu"
+                if str(cuda_path) in self.cuda_file_warning_map:
+                    fixer = SourceFile(str(file), cuda_path, self.cuda_file_warning_map[cuda_path])
+                else:
+                    fixer = SourceFile(str(file), "", {})
+                fixer.fix_warnings()
+                new_file_content = "".join([l.line for l in fixer.lines])
             new_path = Path(self.output_path).joinpath(file.relative_to(self.dpcpp_root_path))
             if not new_path.parent.exists():
                 new_path.parent.mkdir(parents=True)

@@ -10,12 +10,12 @@ class SourceProject:
     warning_log_regex = r"(.*):(\d+):\d+: warning: (DPCT\d+:\d+): .*"
 
     def __init__(self, dpcpp_root_path, cuda_root_path, output_path, log_path):
-        self.dpcpp_root_path = dpcpp_root_path
-        self.cuda_root_path = cuda_root_path
+        self.dpcpp_root_path = Path(dpcpp_root_path).resolve()
+        self.cuda_root_path = Path(cuda_root_path).resolve()
         self.all_dpct_files = filter(
-            lambda path: path.is_file() and not any([part for part in path.resolve().parts if part.startswith(".")]),
-            Path(self.dpcpp_root_path).resolve().rglob("*"))
-        self.output_path = output_path
+            lambda path: path.is_file() and not any([part for part in path.parts if part.startswith(".")]),
+            self.dpcpp_root_path.rglob("*"))
+        self.output_path = Path(output_path).resolve()
 
         with open(log_path, "r") as f:
             self.log_lines = f.readlines()
@@ -36,7 +36,7 @@ class SourceProject:
                 if str(file).endswith(ext):
                     is_cuda_file = True
                     break
-            cuda_path = str(Path(self.cuda_root_path).resolve().joinpath(file.relative_to(self.dpcpp_root_path)))
+            cuda_path = str(self.cuda_root_path.joinpath(file.relative_to(self.dpcpp_root_path)))
             if not is_cuda_file:
                 with open(file, "r") as f:
                     new_file_content = f.read()
@@ -56,7 +56,7 @@ class SourceProject:
                     fixer = SourceFile(str(file), "", {})
                 fixer.fix_warnings()
                 new_file_content = "".join([l.line for l in fixer.lines])
-            new_path = Path(self.output_path).resolve().joinpath(file.relative_to(self.dpcpp_root_path))
+            new_path = self.output_path.joinpath(file.relative_to(self.dpcpp_root_path))
             if not new_path.parent.exists():
                 new_path.parent.mkdir(parents=True)
             with open(new_path, "w") as f:

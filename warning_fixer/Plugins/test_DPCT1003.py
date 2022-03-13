@@ -17,3 +17,8 @@ class TestDPCT1003(TestCase):
         self.assertTrue("DPCT1007:15" in file.lines[3].line)
         self.assertEqual(file.lines[6].line, '        ptr = (void *)sycl::malloc_device(n * sizeof(T), dpct::get_default_queue());\n')
         print("".join([l.line for l in file.lines]))
+
+    def test_fix1003_with_try(self):
+        file = SourceFile("../../test_resources/DPCT1003_trycatch.dp.cpp", "", {})
+        file.fix_warnings()
+        self.assertEqual(file.lines[6].line, 66 * ' ' + 'try {sycl::free(ptr,dpct::get_default_queue());\n')

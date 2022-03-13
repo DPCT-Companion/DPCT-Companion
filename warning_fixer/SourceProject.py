@@ -12,19 +12,24 @@ class SourceProject:
     def __init__(self, dpcpp_root_path, cuda_root_path, output_path, log_path):
         self.dpcpp_root_path = Path(dpcpp_root_path).resolve()
         self.cuda_root_path = Path(cuda_root_path).resolve()
+        self.log_path = Path(log_path).resolve()
         self.all_dpct_files = filter(
             lambda path: path.is_file() and not any([part for part in path.parts if part.startswith(".")]),
             self.dpcpp_root_path.rglob("*"))
         self.output_path = Path(output_path).resolve()
 
-        with open(log_path, "r") as f:
+        with open(self.log_path, "r") as f:
             self.log_lines = f.readlines()
         self.cuda_file_warning_map = {}
         warning_log_pattern = re.compile(self.warning_log_regex)
         for l in self.log_lines:
             result = warning_log_pattern.search(l)
             if result:
-                cuda_file_path = result.group(1)
+                cuda_file_path = Path(result.group(1))
+                if cuda_file_path.is_absolute():
+                    cuda_file_path = str(cuda_file_path)
+                else:
+                    cuda_file_path = str(self.log_path.parent.joinpath(cuda_file_path).resolve())
                 if cuda_file_path not in self.cuda_file_warning_map:
                     self.cuda_file_warning_map[cuda_file_path] = {}
                 self.cuda_file_warning_map[cuda_file_path][result.group(3)] = int(result.group(2))

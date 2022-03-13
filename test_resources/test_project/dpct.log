@@ -1,0 +1,91 @@
+cuda/myers_gpu.cu:54:24: warning: DPCT1023:66: The DPC++ sub-group does not support mask options for sycl::shift_group_right.
+    const WordType x = __shfl_up_sync(warp_mask, v >> (word_size - 1), 1);
+                       ^
+cuda/myers_gpu.cu:67:24: warning: DPCT1023:67: The DPC++ sub-group does not support mask options for sycl::shift_group_left.
+    const WordType x = __shfl_down_sync(warp_mask, v << (word_size - 1), 1);
+                       ^
+cuda/myers_gpu.cu:94:22: warning: DPCT1023:68: The DPC++ sub-group does not support mask options for sycl::shift_group_right.
+        uint32_t x = __shfl_up_sync(warp_mask, carry, 1);
+                     ^
+cuda/myers_gpu.cu:407:34: warning: DPCT1023:69: The DPC++ sub-group does not support mask options for sycl::shift_group_left.
+                    warp_carry = __shfl_down_sync(0x8000'0001u, warp_carry, warp_size - 1);
+                                 ^
+cuda/myers_gpu.cu:572:34: warning: DPCT1023:70: The DPC++ sub-group does not support mask options for sycl::shift_group_left.
+                    warp_carry = __shfl_down_sync(0x8000'0001u, warp_carry, warp_size - 1);
+                                 ^
+cuda/myers_gpu.cu:649:29: warning: DPCT1023:71: The DPC++ sub-group does not support mask options for sycl::shift_group_left.
+                    carry = __shfl_down_sync(0x8000'0001u, delta_right.y, warp_size - 1);
+                            ^
+cuda/myers_gpu.cu:885:21: warning: DPCT1003:72: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+    GW_CU_CHECK_ERR(cudaStreamCreate(&stream));
+                    ^
+cuda/myers_gpu.cu:899:25: warning: DPCT1003:73: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+        GW_CU_CHECK_ERR(cudaMemcpyAsync(sequences_d.data(), query.data(), sizeof(char) * get_size(query), cudaMemcpyHostToDevice, stream));
+                        ^
+cuda/myers_gpu.cu:900:25: warning: DPCT1003:74: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+        GW_CU_CHECK_ERR(cudaMemcpyAsync(sequences_d.data() + max_sequence_length, target.data(), sizeof(char) * get_size(target), cudaMemcpyHostToDevice, stream));
+                        ^
+cuda/myers_gpu.cu:901:25: warning: DPCT1003:75: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+        GW_CU_CHECK_ERR(cudaMemcpyAsync(sequence_lengths_d.data(), lengths.data(), sizeof(int32_t) * 2, cudaMemcpyHostToDevice, stream));
+                        ^
+cuda/myers_gpu.cu:906:25: warning: DPCT1003:76: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+        GW_CU_CHECK_ERR(cudaStreamSynchronize(stream));
+                        ^
+cuda/myers_gpu.cu:908:21: warning: DPCT1003:77: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+    GW_CU_CHECK_ERR(cudaStreamDestroy(stream));
+                    ^
+cuda/myers_gpu.cu:933:21: warning: DPCT1003:78: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+    GW_CU_CHECK_ERR(cudaStreamCreate(&stream));
+                    ^
+cuda/myers_gpu.cu:950:25: warning: DPCT1003:79: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+        GW_CU_CHECK_ERR(cudaMemcpyAsync(sequences_d.data(), query.data(), sizeof(char) * get_size(query), cudaMemcpyHostToDevice, stream));
+                        ^
+cuda/myers_gpu.cu:951:25: warning: DPCT1003:80: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+        GW_CU_CHECK_ERR(cudaMemcpyAsync(sequences_d.data() + max_sequence_length, target.data(), sizeof(char) * get_size(target), cudaMemcpyHostToDevice, stream));
+                        ^
+cuda/myers_gpu.cu:952:25: warning: DPCT1003:81: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+        GW_CU_CHECK_ERR(cudaMemcpyAsync(sequence_lengths_d.data(), lengths.data(), sizeof(int32_t) * 2, cudaMemcpyHostToDevice, stream));
+                        ^
+cuda/myers_gpu.cu:960:13: warning: DPCT1049:82: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
+            myers::myers_convert_to_full_score_matrix_kernel<<<n_blocks, n_threads, 0, stream>>>(fullscore.get_device_interface(), pv.get_device_interface(), mv.get_device_interface(), score.get_device_interface(), sequence_lengths_d.data(), 0);
+            ^
+cuda/myers_gpu.cu:966:21: warning: DPCT1003:83: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+    GW_CU_CHECK_ERR(cudaStreamSynchronize(stream));
+                    ^
+cuda/myers_gpu.cu:967:21: warning: DPCT1003:84: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+    GW_CU_CHECK_ERR(cudaStreamDestroy(stream));
+                    ^
+cuda/myers_gpu.cu:985:9: warning: DPCT1049:85: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
+        myers::myers_compute_score_matrix_kernel<<<blocks, threads, 0, stream>>>(pv.get_device_interface(), mv.get_device_interface(), score.get_device_interface(), query_patterns.get_device_interface(), sequences_d, sequence_lengths_d, max_sequence_length, n_alignments);
+        ^
+cuda/myers_gpu.cu:990:9: warning: DPCT1049:86: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
+        myers::myers_backtrace_kernel<<<blocks, threads, 0, stream>>>(paths_d, path_lengths_d, max_path_length, pv.get_device_interface(), mv.get_device_interface(), score.get_device_interface(), sequence_lengths_d, n_alignments);
+        ^
+cuda/myers_gpu.cu:1007:5: warning: DPCT1049:87: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
+    myers::myers_banded_kernel<<<blocks, threads, 0, stream>>>(paths_d, path_lengths_d, path_starts_d,
+    ^
+
+cuda/hirschberg_myers_gpu.cu:44:24: warning: DPCT1023:162: The DPC++ sub-group does not support mask options for sycl::shift_group_right.
+    const WordType x = __shfl_up_sync(warp_mask, v >> (word_size - 1), 1);
+                       ^
+cuda/hirschberg_myers_gpu.cu:70:22: warning: DPCT1023:163: The DPC++ sub-group does not support mask options for sycl::shift_group_right.
+        uint32_t x = __shfl_up_sync(warp_mask, carry, 1);
+                     ^
+cuda/hirschberg_myers_gpu.cu:369:34: warning: DPCT1023:164: The DPC++ sub-group does not support mask options for sycl::shift_group_left.
+                    warp_carry = __shfl_down_sync(0x8000'0001u, warp_carry, warp_size - 1);
+                                 ^
+cuda/hirschberg_myers_gpu.cu:479:5: warning: DPCT1023:165: The DPC++ sub-group does not support mask options for sycl::select_from_group.
+    __shfl_sync(0xffff'ffffu, midpoint, 0);
+    ^
+cuda/hirschberg_myers_gpu.cu:471:28: warning: DPCT1023:166: The DPC++ sub-group does not support mask options for sycl::shift_group_left.
+        const int32_t mv = __shfl_down_sync(0xffff'ffffu, cur_min, i);
+                           ^
+cuda/hirschberg_myers_gpu.cu:472:28: warning: DPCT1023:167: The DPC++ sub-group does not support mask options for sycl::shift_group_left.
+        const int32_t mp = __shfl_down_sync(0xffff'ffffu, midpoint, i);
+                           ^
+cuda/hirschberg_myers_gpu.cu:699:5: warning: DPCT1049:168: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
+    hirschbergmyers::hirschberg_myers_compute_alignment<<<blocks, threads, 0, stream>>>(stack_buffer.data(), stack_buffer_size_per_alignment, switch_to_myers_threshold, paths_d, path_lengths_d, max_path_length, pv.get_device_interface(), mv.get_device_interface(), score.get_device_interface(), query_patterns.get_device_interface(), sequences_d, sequence_lengths_d, max_sequence_length, n_alignments);
+    ^
+cuda/hirschberg_myers_gpu.cu:700:21: warning: DPCT1010:169: SYCL uses exceptions to report errors and does not use the error codes. The call was replaced with 0. You need to rewrite this code.
+    GW_CU_CHECK_ERR(cudaPeekAtLastError());
+                    ^

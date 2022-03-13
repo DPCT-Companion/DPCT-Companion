@@ -12,9 +12,9 @@ class DPCT1003(BaseFixer):
         temp_code, statement_start, statement_end, consecutive_warnings = self.find_warning_statement()
 
         new_code = temp_code
-        regex = r"(\s*).*\(\s*\((.*),\s*0\)\);"
+        regex = r"[a-zA-Z_][a-zA-Z0-9_]*\(\s*\((.*),\s*0\)\);"
         result = re.search(regex, temp_code)
         if result:
-            new_code = result.group(1) + result.group(2) + ";\n"
+            new_code = temp_code[:result.span(0)[0]] + result.group(1) + ";\n"
 
         self.replace_code(new_code, statement_start, statement_end, consecutive_warnings)

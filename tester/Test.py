@@ -1,15 +1,18 @@
+from calendar import c
 import os
 import asyncio
 
 class Check:
     """contains results for a single check 'stdin-check' / 'stderr-check'
     """
-    def __init__(self, o1, o2, omit_line=None, name=None):
+    def __init__(self, o1, o2, omit_line=None, name=None, c1=None, c2=None):
         self.omit_line = omit_line if omit_line else []
         self.pass_check = True  # does the check pass ?
         self.o1 = o1            # output of cuda
         self.o2 = o2            # output of dpcpp
         self.name = name
+        self.c1=c1              # the return code,
+        self.c2=c2              # see https://docs.python.org/3/library/asyncio-subprocess.html#asyncio.asyncio.subprocess.Process.returncode
         self.check()
     def check(self):
         lines1 = self.o1.split('\n')
@@ -24,6 +27,7 @@ class Check:
 
 async def get_outputs(steps : list, exec: str):
     out1 = []
+    code = []
     proc = await asyncio.subprocess.create_subprocess_exec(
         exec, 
         stdin=asyncio.subprocess.PIPE, 
@@ -32,25 +36,25 @@ async def get_outputs(steps : list, exec: str):
     )
     for step in steps:
         if 'check-stdout' in step:
-            v = step['check-stdout']
             out1.append((await proc.stdout.read(1024)).decode())
+            code.append(proc.returncode)
         elif 'check-stderr' in step:
-            v = step['check-stderr']
             out1.append((await proc.stderr.read(1024)).decode())
+            code.append(proc.returncode)
         elif 'input-stdin' in step:
             v = step['input-stdin']
-            key = v['key']
+            key = str(v['key'])
             if not 'omit-newline' in v or not v['omit-newline']: key += '\n'
             proc.stdin.write(key.encode())
         elif 'sleep' in step:
             sleep_time = step['sleep']
             await asyncio.sleep(sleep_time)
     await proc.wait()
-    return out1
+    return out1, code
 
 async def get_tests(steps : list, cuda_exec : str, dpcpp_exec : str):
-    cuda_out = await get_outputs(steps, exec=cuda_exec)
-    dpcpp_out = await get_outputs(steps, exec=dpcpp_exec)
+    cuda_out, cuda_code = await get_outputs(steps, exec=cuda_exec)
+    dpcpp_out, dpcpp_code = await get_outputs(steps, exec=dpcpp_exec)
     omit_lines = []
     names = []
     for step in steps:
@@ -74,7 +78,7 @@ async def get_tests(steps : list, cuda_exec : str, dpcpp_exec : str):
                 name = v['name']
             names.append(name)
             omit_lines.append(omit_line)
-    checks = [Check(o1, o2, omit_line=omit_line, name=name) for o1, o2, omit_line, name in zip(cuda_out, dpcpp_out, omit_lines, names)]
+    checks = [Check(o1, o2, omit_line=omit_line, name=name, c1=c1, c2=c2) for o1, o2, omit_line, name, c1, c2 in zip(cuda_out, dpcpp_out, omit_lines, names, cuda_code, dpcpp_code)]
     return checks
 
 async def get_all_tests(test_cases : list, cuda_exec : str, dpcpp_exec : str):

@@ -51,7 +51,7 @@ class SourceFile:
             if regex_start.search(self.lines[i].line):
                 start = i
                 break
-        for i in range(index+1, len(self.lines)):
+        for i in range(index + 1, len(self.lines)):
             if regex_end.search(self.lines[i].line):
                 end = i
                 break

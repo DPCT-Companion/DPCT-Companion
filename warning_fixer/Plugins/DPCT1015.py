@@ -32,7 +32,7 @@ class DPCT1015(BaseFixer):
         args = [group[0] for group in DPCT1015.arg_pattern.findall(line)]
         return self.stream_style(args[1].strip('"'), *args[2:])
 
-    def stream_style(self, format_string : str, *args):
+    def stream_style(self, format_string: str, *args):
         """generate c++ stream style given format string and parameters
 
         Args:
@@ -50,8 +50,8 @@ class DPCT1015(BaseFixer):
             if i >= len(format_match): break
             if format_match[i][0] == "%%":
                 del format_match[i]
-                format_split[i] = format_split[i] + '%' + format_split[i+1]
-                del format_split[i+1]
+                format_split[i] = format_split[i] + '%' + format_split[i + 1]
+                del format_split[i + 1]
             i += 1
         for i, match in enumerate(format_match):
             if len(format_split[i]) > 0: ret += " << \"" + format_split[i] + "\""

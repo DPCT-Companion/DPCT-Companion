@@ -4,6 +4,7 @@ import yaml
 
 from Build import build
 from Test import test
+from Profile import profile
 from Clean import clean
 
 if __name__ == '__main__':
@@ -40,6 +41,10 @@ if __name__ == '__main__':
         # print(test_cases, cuda_exec, dpcpp_exec)
         result = test(test_cases, cuda_exec, dpcpp_exec)
         # TODO : export to report
-        
+
+        # TODO: Place the timeout value in yaml specification.
+        # TODO: Export profiler message to report.
+        # Profiler is not enabled right now.
+        # profiler_message = profile(dpcpp_exec, 300)
         if "clean" in config.keys():
             clean(config["clean"])

@@ -28,8 +28,8 @@ def profile(dpcpp_exec: str, timeout: int) -> dict:
         result = subprocess.run(dpcpp_profile_gpu_cmd.split(), capture_output=True, timeout=timeout, stderr=subprocess.STDOUT, encoding="utf-8")
         profiler_output = result.stdout
 
-        gpu_time = float(re.search(gpu_time_patt, profiler_output))
-        gpu_eu_idle = float(re.search(gpu_eu_efficiency_patt, profiler_output))
+        gpu_time = float(re.search(gpu_time_patt, profiler_output).group(1))
+        gpu_eu_idle = float(re.search(gpu_eu_efficiency_patt, profiler_output).group(1))
 
         return {"gpu_time": gpu_time,
                 "gpu_eu_idle": gpu_eu_idle}

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DPCT-Companion Testing Report</title>
+    <style>
+        canvas {
+            width: 200px;
+            height: 20px;
+            border: 1px solid black;
+        }
+        tr {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            width: 100%;
+        }
+        td.title {
+            grid-column-start: 1;
+            grid-column-end: 3;
+        }
+        td.detail {
+            grid-column: 1;
+            grid-column-end: 5;
+        }
+    </style>
+    <script type="text/javascript">
+        function draw_case_result(id, pass, fail, crash = 0) {
+            var canvas = document.getElementById(id);
+            if (canvas.getContext) {
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'red';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'green';
+                ctx.fillRect(0, 0, pass/(pass+fail+crash)*canvas.width, canvas.height);
+                ctx.fillStyle = 'purple';
+                ctx.fillRect((pass+fail)/(pass+fail+crash)*canvas.width, 0, crash/(pass+fail+crash)*canvas.width, canvas.height);
+            }
+        }
+    </script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+</head>
+<body>
+    <h1>DPCT-Companion Testing Report</h1>
+    <h2>Summary</h2>
+    <canvas id="summary" style="width: 400px;"><script>draw_case_result('summary', {{ stat["pass"] }}, {{ stat["umatch"] }}, {{ stat["crashed"] }});</script></canvas>
+    <p>
+        <div>Found: {{ stat["total"] }}</div>
+        <div style="color: green;">Pass: {{ stat["pass"] }} ({{stat["pass"] / stat["total"] *100}}%)</div>
+        <div style="color: red;">Not Matched: {{ stat["umatch"] }} ({{stat["umatch"] / stat["total"] *100}}%)</div>
+        <div style="color: purple;">Crashed: {{ stat["crashed"] }} ({{stat["crashed"] / stat["total"] *100}}%)</div>
+    </p>
+    <h2>Test Cases</h2>
+    <table>
+        {% for check in checks %}
+        <tr>
+            <td class="title">{{ check.name }}</td>
+            <td>{{ difflib.SequenceMatcher(None, "".join(check.o1), "".join(check.o2)).ratio() * 100 }}%</td>
+            <td><canvas id="c{{ loop.index0 }}"><script>draw_case_result('c{{ loop.index0 }}', {{ difflib.SequenceMatcher(None, "".join(check.o1), "".join(check.o2)).ratio() }}, {{ 1-difflib.SequenceMatcher(None, "".join(check.o1), "".join(check.o2)).ratio() }});</script></canvas></td>
+            <td class="detail"><span id="detail{{ loop.index0 }}"></span></td>
+        </tr>
+        {% endfor %}
+      </table>
+
+      <script>
+var configuration = {
+drawFileList: false,
+fileListToggle: false,
+fileListStartVisible: false,
+fileContentToggle: false,
+matching: 'lines',
+outputFormat: 'side-by-side',
+synchronisedScroll: true,
+renderNothingWhenEmpty: false,
+};
+{% for check in checks %}
+var detail{{ loop.index0 }} = new Diff2HtmlUI(document.getElementById('detail{{ loop.index0 }}'), `{{ "".join(list(difflib.unified_diff(check.o1, check.o2, fromfile=check.name, tofile=check.name))) }}`, configuration);
+detail{{ loop.index0 }}.draw();
+{% endfor %}
+</script>
+
+</body>
+</html>

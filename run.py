@@ -1,5 +1,6 @@
 from os import path
 from sys import argv
+
 import docker
 
 IMG_NAME = "patcher"
@@ -21,4 +22,5 @@ except docker.errors.ImageNotFound:
     client.images.build(path=path.join(srcPath, "patcher"), tag=IMG_NAME)
     print("Build success.")
 
-client.containers.run(IMG_NAME, command=args, volumes={path.abspath(projectPath): {"bind": "/app/data", "mode": "rw"}}, remove=True)
+client.containers.run(IMG_NAME, command=args, volumes={path.abspath(projectPath): {"bind": "/app/data", "mode": "rw"}},
+                      remove=True)

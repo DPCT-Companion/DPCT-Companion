@@ -16,7 +16,6 @@ from warning_fixer.Plugins.BaseFixer import BaseFixer
 
 
 class DPCT1023(BaseFixer):
-
     known_full_mask_name = set(["FULL_MASK", "0xffff'ffffu"])
     fix_skeleton = "{} = {};\nsycl::ext::oneapi::sub_group sg_DPCTCOM = item_ct1.get_sub_group();\nint sgId_DPCTCOM = sg_DPCTCOM.get_local_id()[0];\nif ((1 << sgId_DPCTCOM) & {})\n{{\n    {}\n}}\n"
 

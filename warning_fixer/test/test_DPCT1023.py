@@ -12,7 +12,8 @@ class DPCT1023Test(unittest.TestCase):
         testcase.dpcxx_code_line = "        uint32_t x =\n            sycl::shift_group_right(item_ct1.get_sub_group(), carry, 1);"
         testcase.normalize_input()
         self.assertEqual(testcase.cuda_code_line, "uint32_t x = __shfl_up_sync(warp_mask, carry, 1);")
-        self.assertEqual(testcase.dpcxx_code_line, "uint32_t x = sycl::shift_group_right(item_ct1.get_sub_group(), carry, 1);")
+        self.assertEqual(testcase.dpcxx_code_line,
+                         "uint32_t x = sycl::shift_group_right(item_ct1.get_sub_group(), carry, 1);")
 
     def test_variable(self):
         file = SourceFile("../../test_resources/DPCT1023.dp.cpp", "../../test_resources/DPCT1023.cu", {})
@@ -25,4 +26,5 @@ class DPCT1023Test(unittest.TestCase):
         file = SourceFile("../../test_resources/DPCT1023.dp.cpp", "../../test_resources/DPCT1023.cu", {})
         testcase = DPCT1023(file.lines, "const int32_t mv = __shfl_down_sync(0xffff'ffffu, cur_min, i);", 8, 11)
         testcase.fix()
-        self.assertEqual(testcase.source_lines[8].line, "        const int32_t mv = sycl::shift_group_left(item_ct1.get_sub_group(), cur_min, i);\n")
+        self.assertEqual(testcase.source_lines[8].line,
+                         "        const int32_t mv = sycl::shift_group_left(item_ct1.get_sub_group(), cur_min, i);\n")

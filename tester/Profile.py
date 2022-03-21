@@ -14,18 +14,19 @@ Returns:
         "gpu_eu_idle": GPU EU (Execution Unit) idle time versus total possible time in percentage. Indicator of GPU uArch efficiency.
 """
 
-import subprocess
 import re
+import subprocess
 
 
 def profile(dpcpp_exec: str, timeout: int) -> dict:
     try:
         dpcpp_profile_gpu_cmd = "vtune -collect gpu-hotspots {}".format(dpcpp_exec)
-        gpu_time_patt = re.compile(r"GPU Time: ([0-9]+\.[0-9]+)s")
-        gpu_eu_efficiency_patt = re.compile(r"EU Array Stalled/Idle: ([0-9]+\.[0-9]+)%")
+        gpu_time_patt = re.compile(r"GPU Time: (\d+\.\d+)s")
+        gpu_eu_efficiency_patt = re.compile(r"EU Array Stalled/Idle: (\d+\.\d+)%")
 
         print("Profiling ported DPC++ program. Timeout is {} seconds.".format(timeout))
-        result = subprocess.run(dpcpp_profile_gpu_cmd.split(), capture_output=True, timeout=timeout, stderr=subprocess.STDOUT, encoding="utf-8")
+        result = subprocess.run(dpcpp_profile_gpu_cmd.split(), capture_output=True, timeout=timeout,
+                                stderr=subprocess.STDOUT, encoding="utf-8")
         profiler_output = result.stdout
 
         gpu_time = float(re.search(gpu_time_patt, profiler_output).group(1))

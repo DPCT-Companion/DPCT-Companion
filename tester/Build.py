@@ -1,6 +1,6 @@
-import imp
-from typing import Tuple
 import subprocess
+from typing import Tuple
+
 
 def build(build_config: dict) -> Tuple[str, str]:
     if "cuda-exec" not in build_config:
@@ -21,7 +21,7 @@ def build(build_config: dict) -> Tuple[str, str]:
     if "dpcpp-script" in build_config:
         if type(build_config["dpcpp-script"]) is not str:
             raise Exception("fail: build.dpcpp-script should be a string")
-         # TODO: Fix this naive implementation
+        # TODO: Fix this naive implementation
         subprocess.run(build_config["dpcpp-script"].split(" "), check=True)
-    
+
     return build_config["cuda-exec"], build_config["dpcpp-exec"]

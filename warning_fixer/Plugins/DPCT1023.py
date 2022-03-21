@@ -1,14 +1,14 @@
-'''
+"""
     Class which implemented the fixer of DPCT1023 warning.
 
     Input cuda_code_line: The line of CUDA code which triggered this warning (Get it from the DPCT log)
     Input dpcxx_code_line: The line of valid code immediately following the warning (I would recommend to use ";" for delimiter, since the code can technically span more than one line)
-    
+
     Output: A string which contains fixed lines of code. None on error.
-    
+
     LIMITATION: NVIDIA CUDA apps mostly assume a warp size of 32, so masks are mostly indicating 32 lanes as well. For this warning to *POSSIBLY* be fixed, our DPC++ kernel MUST BE launched using 32-thread-wide SIMD subgroups.
     If subgroup size is not 32, even manually fixing it will be a big headache.
-'''
+"""
 
 import re
 
@@ -16,7 +16,7 @@ from warning_fixer.Plugins.BaseFixer import BaseFixer
 
 
 class DPCT1023(BaseFixer):
-    known_full_mask_name = set(["FULL_MASK", "0xffff'ffffu"])
+    known_full_mask_name = {"FULL_MASK", "0xffff'ffffu"}
     fix_skeleton = "{} = {};\nsycl::ext::oneapi::sub_group sg_DPCTCOM = item_ct1.get_sub_group();\nint sgId_DPCTCOM = sg_DPCTCOM.get_local_id()[0];\nif ((1 << sgId_DPCTCOM) & {})\n{{\n    {}\n}}\n"
 
     def __init__(self, source_lines, cuda_code_line, start, end):

@@ -36,6 +36,7 @@ class SourceFile:
             self.cuda_file = None
             self.warning_map = None
 
+    # find the next warning instance
     def get_next_warning(self, begin=0):
         for i, line in enumerate(self.lines[begin:]):
             if line.warning_code:
@@ -43,6 +44,10 @@ class SourceFile:
                 return line.warning_code, start, end, line.warning_no
         return "", -1, -1, ""
 
+    # search for the start and the end of the warning comment area
+    # index is the line no of warning code (e.g., DPCT1015:63)
+    # start is the start line no of the warning comment area (i.e., "/*")
+    # end is the end line no of the warning comment area (i.e., "*/")
     def get_warning_range(self, index):
         regex_start = re.compile(r"/\*")
         regex_end = re.compile(r"\*/")

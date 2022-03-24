@@ -51,12 +51,17 @@
     </p>
     <h2>Test Cases</h2>
     <table>
-        {% for check in checks %}
+        {% for case_stat in case_stats %}
+        {% set outer_loop = loop %}
         <tr>
-            <td class="title">{{ check.name }}</td>
-            <td>{{ difflib.SequenceMatcher(None, "".join(check.o1), "".join(check.o2)).ratio() * 100 }}%</td>
-            <td><canvas id="c{{ loop.index0 }}"><script>draw_case_result('c{{ loop.index0 }}', {{ difflib.SequenceMatcher(None, "".join(check.o1), "".join(check.o2)).ratio() }}, {{ 1-difflib.SequenceMatcher(None, "".join(check.o1), "".join(check.o2)).ratio() }});</script></canvas></td>
-            <td class="detail"><span id="detail{{ loop.index0 }}"></span></td>
+            <td class="title">{{ case_stat["name"] }}</td>
+            <td>{{ case_stat["pass"]/case_stat["total"] *100}}%</td>
+            <td><canvas id="c{{ loop.index0 }}"><script>draw_case_result('c{{ loop.index0 }}', {{ case_stat["pass"] }}, {{ case_stat["total"]-case_stat["pass"] }});</script></canvas></td>
+            
+                {% for check in case_stat["checks"] %}
+                <td class="detail"><span id="case{{ outer_loop.index0 }}check{{ loop.index0 }}"></span></td>
+                {% endfor %}
+            
         </tr>
         {% endfor %}
       </table>
@@ -66,15 +71,18 @@ var configuration = {
 drawFileList: false,
 fileListToggle: false,
 fileListStartVisible: false,
-fileContentToggle: false,
+fileContentToggle: true,
 matching: 'lines',
 outputFormat: 'side-by-side',
 synchronisedScroll: true,
 renderNothingWhenEmpty: false,
 };
-{% for check in checks %}
-var detail{{ loop.index0 }} = new Diff2HtmlUI(document.getElementById('detail{{ loop.index0 }}'), `{{ "".join(list(difflib.unified_diff(check.o1, check.o2, fromfile=check.name, tofile=check.name))) }}`, configuration);
-detail{{ loop.index0 }}.draw();
+{% for case_stat in case_stats %}
+{% set outer_loop = loop %}
+{% for check in case_stat["checks"] %}
+var diff{{ outer_loop.index0 }}_{{ loop.index0 }} = new Diff2HtmlUI(document.getElementById('case{{ outer_loop.index0 }}check{{ loop.index0 }}'), `{{ "".join(list(difflib.unified_diff(check.o1, check.o2, fromfile=check.name, tofile=check.name))) }}`, configuration);
+diff{{ outer_loop.index0 }}_{{ loop.index0 }}.draw();
+{% endfor %}
 {% endfor %}
 </script>
 

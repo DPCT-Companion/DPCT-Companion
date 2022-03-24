@@ -11,17 +11,28 @@ from Clean import clean
 
 def report(result):
     template = Environment(loader=FileSystemLoader("."), autoescape=True).get_template("report_template.html")
-    for check in result:
-        check.o1 = [i+'\n' for i in check.o1.splitlines()]
-        check.o2 = [i+'\n' for i in check.o2.splitlines()]
+    case_stats = []
+    for case in result:
+        for check in case:
+            check.o1 = [i+'\n' for i in check.o1.splitlines()]
+            check.o2 = [i+'\n' for i in check.o2.splitlines()]
+        case_stat = {
+            "total": len(case),
+            "pass": sum(check.pass_check and (check.c1 == 0 or check.c1 is None) and (check.c2 == 0 or check.c2 is None) for check in case),
+            "crashed": sum((check.c1 != 0 and check.c1 is not None) or (check.c2 != 0 and check.c2 is not None) for check in case),
+            "umatch": len(case) - sum(check.pass_check and (check.c1 == 0 or check.c1 is None) and (check.c2 == 0 or check.c2 is None) for check in case) - 
+            sum((check.c1 != 0 and check.c1 is not None) or (check.c2 != 0 and check.c2 is not None) for check in case),
+            "name": case[0].name,
+            "checks": case}
+        case_stats.append(case_stat)
     stat = {
-        "total": len(result),
-        "pass": sum(check.pass_check for check in result),
-        "crashed": sum(check.c1 for check in result),
-        "umatch": sum(not check.pass_check for check in result) - sum(check.c1 for check in result)}
+        "total": sum(case["total"] for case in case_stats),
+        "pass": sum(case["pass"] for case in case_stats),
+        "crashed": sum(case["crashed"] for case in case_stats),
+        "umatch": sum(case["umatch"] for case in case_stats)}
 
     with open('report.html', 'w' ) as f:
-        f.write(template.render(checks=result, stat=stat, difflib=difflib, list=list))
+        f.write(template.render(stat=stat, case_stats=case_stats, difflib=difflib, list=list))
 
 
 if __name__ == '__main__':

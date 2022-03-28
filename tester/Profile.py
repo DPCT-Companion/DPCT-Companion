@@ -25,7 +25,7 @@ def profile(dpcpp_exec: str, timeout: int) -> dict:
         gpu_eu_efficiency_patt = re.compile(r"EU Array Stalled/Idle: (\d+\.\d+)%")
 
         print("Profiling ported DPC++ program. Timeout is {} seconds.".format(timeout))
-        result = subprocess.run(dpcpp_profile_gpu_cmd.split(), capture_output=True, timeout=timeout,
+        result = subprocess.run(dpcpp_profile_gpu_cmd.split(), timeout=timeout, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, encoding="utf-8")
         profiler_output = result.stdout
 
@@ -34,8 +34,6 @@ def profile(dpcpp_exec: str, timeout: int) -> dict:
 
         return {"gpu_time": gpu_time,
                 "gpu_eu_idle": gpu_eu_idle}
-
-
 
     except subprocess.TimeoutExpired as e:
         print("Timed out in profiling. Complete output message for the profiler is printed below for reference:\n")

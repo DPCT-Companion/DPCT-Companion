@@ -28,11 +28,12 @@ class Check:
         if len(lines1) != len(lines2): self.pass_check = False
 
 
-async def get_outputs(steps: list, exec: str):
+async def get_outputs(args: list, steps: list, exec: str):
     out1 = []
     code = []
     proc = await asyncio.subprocess.create_subprocess_exec(
         exec,
+        *args,
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
@@ -56,9 +57,11 @@ async def get_outputs(steps: list, exec: str):
     return out1, code
 
 
-async def get_tests(steps: list, cuda_exec: str, dpcpp_exec: str):
-    cuda_out, cuda_code = await get_outputs(steps, exec=cuda_exec)
-    dpcpp_out, dpcpp_code = await get_outputs(steps, exec=dpcpp_exec)
+async def get_tests(case: dict, cuda_exec: str, dpcpp_exec: str):
+    args = case["args"]
+    steps = case["steps"]
+    cuda_out, cuda_code = await get_outputs(args=args, steps=steps, exec=cuda_exec)
+    dpcpp_out, dpcpp_code = await get_outputs(args=args, steps=steps, exec=dpcpp_exec)
     omit_lines = []
     names = []
     for step in steps:
@@ -89,8 +92,8 @@ async def get_tests(steps: list, cuda_exec: str, dpcpp_exec: str):
 
 async def get_all_tests(test_cases: list, cuda_exec: str, dpcpp_exec: str):
     results = []
-    for steps in test_cases:
-        results.append(await get_tests(steps, cuda_exec, dpcpp_exec))
+    for case in test_cases:
+        results.append(await get_tests(case, cuda_exec, dpcpp_exec))
     return results
 
 

@@ -4,16 +4,16 @@ from tester.run import *
 from tester.Test import Check
 
 
-class RunTest(unittest.TestCase):
+class TestReport(unittest.TestCase):
     def test_report(self):
         a = Check("hello", "hello world!!", name="check 1", c1=0)
-        a.pass_check = False
+        self.assertFalse(a.pass_check)
         b = Check("i love python\nme too!", "i love java\nme too!", name="check 2", c1=0)
-        b.pass_check = False
+        self.assertFalse(b.pass_check)
         c = Check("apple juice", "orange juice", name="check 3", c1=0)
-        c.pass_check = False
+        self.assertFalse(c.pass_check)
         d = Check("yay!\npass!", "yay!\npass!", name="check 4", c1=0)
-        d.pass_check = True
+        self.assertTrue(d.pass_check)
         checks = [[a, b], [c, d]]
         r = report(checks)
         self.assertRegex(r, "((.|\n)*)Pass: 1((.|\n)*)")

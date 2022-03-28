@@ -1,9 +1,10 @@
 import unittest
-from os.path import *
 from copy import copy
+from pathlib import Path
+
 from tester.Build import *
 
-path = dirname(realpath(__file__))
+path = str(Path(__file__).resolve().parent)
 std_config = {"cuda-exec": f"{path}/a.out", "dpcpp-exec": f"{path}/b.out",
               "cuda-script": f"g++ {path}/a.cpp -o {path}/a.out", "dpcpp-script": f"g++ {path}/b.cpp -o {path}/b.out"}
 

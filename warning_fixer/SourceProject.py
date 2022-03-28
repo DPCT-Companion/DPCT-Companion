@@ -1,5 +1,6 @@
 import argparse
 import re
+import sys
 from pathlib import Path
 
 from warning_fixer.SourceFile import SourceFile
@@ -83,6 +84,7 @@ class SourceProject:
 
 
 if __name__ == "__main__":
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
     parser = argparse.ArgumentParser(description="Warning fixer of DPCT-Companion")
     parser.add_argument("--dpcpp-root-path", type=str, help="Path of dpct out-root")
     parser.add_argument("--cuda-root-path", type=str, help="Path of dpct in-root")

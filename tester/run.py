@@ -1,5 +1,7 @@
-from os.path import dirname, realpath
+import sys
 from sys import argv
+from pathlib import Path
+
 import yaml
 from jinja2 import Environment, FileSystemLoader
 import difflib
@@ -11,7 +13,7 @@ from tester.Clean import clean
 
 
 def report(result):
-    template = Environment(loader=FileSystemLoader(dirname(realpath(__file__))), autoescape=True).get_template("report_template.html")
+    template = Environment(loader=FileSystemLoader(Path(__file__).resolve().parent), autoescape=True).get_template("report_template.html")
     case_stats = []
     for case in result:
         for check in case:
@@ -39,6 +41,7 @@ def report(result):
 
 
 if __name__ == '__main__':
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
     try:
         assert len(argv) == 2
         config_path = argv[1]

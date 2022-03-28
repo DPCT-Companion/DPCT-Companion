@@ -1,9 +1,10 @@
-import unittest
-from os.path import *
-from tester.Test import *
 import subprocess
+import unittest
+from pathlib import Path
 
-path = dirname(realpath(__file__))
+from tester.Test import *
+
+path = str(Path(__file__).resolve().parent)
 subprocess.run(["g++", f"{path}/a.cpp", "-o", f"{path}/a.out"], check=True)
 subprocess.run(["g++", f"{path}/b.cpp", "-o", f"{path}/b.out"], check=True)
 

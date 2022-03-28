@@ -1,16 +1,17 @@
-from typing import Dict
+from os.path import dirname, realpath
 from sys import argv
 import yaml
 from jinja2 import Environment, FileSystemLoader
 import difflib
 
-from Build import build
-from Test import test
-from Profile import profile
-from Clean import clean
+from tester.Build import build
+from tester.Test import test
+from tester.Profile import profile
+from tester.Clean import clean
+
 
 def report(result):
-    template = Environment(loader=FileSystemLoader("."), autoescape=True).get_template("report_template.html")
+    template = Environment(loader=FileSystemLoader(dirname(realpath(__file__))), autoescape=True).get_template("report_template.html")
     case_stats = []
     for case in result:
         for check in case:
@@ -32,7 +33,9 @@ def report(result):
         "umatch": sum(case["umatch"] for case in case_stats)}
 
     with open('report.html', 'w' ) as f:
-        f.write(template.render(stat=stat, case_stats=case_stats, difflib=difflib, list=list))
+        r = template.render(stat=stat, case_stats=case_stats, difflib=difflib, list=list)
+        f.write(r)
+        return r
 
 
 if __name__ == '__main__':
@@ -68,7 +71,6 @@ if __name__ == '__main__':
                 test_cases.append(case)
         # print(test_cases, cuda_exec, dpcpp_exec)
         result = test(test_cases, cuda_exec, dpcpp_exec)
-        # TODO : export to report
         report(result)
 
         # TODO: Place the timeout value in yaml specification.

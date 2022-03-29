@@ -11,9 +11,9 @@ Args:
 
 Returns:
     profiler_message (dict: {str, float}):
-        "cuda_gpu_time": CUDA GPU active time in seconds.
+        "cuda_gpu_time": CUDA GPU active time in microseconds.
         "cuda_gpu_sm_active": NVIDIA GPU SM (Streaming Multiprocessor) active percentage.
-        "dpcpp_gpu_time": DPC++ GPU active time in seconds.
+        "dpcpp_gpu_time": DPC++ GPU active time in microseconds.
         "dpcpp_gpu_eu_idle": Intel GPU EU (Execution Unit) active percentage.
 """
 
@@ -48,7 +48,7 @@ def profile(cuda_exec: str, dpcpp_exec: str, timeout: int) -> dict:
         result = subprocess.run(dpcpp_profile_gpu_cmd.split(), timeout=timeout, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, encoding="utf-8")
         dpcpp_profiler_output = result.stdout
-        dpcpp_gpu_time = float(re.search(dpcpp_gpu_time_patt, dpcpp_profiler_output).group(1))
+        dpcpp_gpu_time = float(re.search(dpcpp_gpu_time_patt, dpcpp_profiler_output).group(1)) * 1000000.0
         dpcpp_gpu_eu_active = 100.0 - float(re.search(dpcpp_gpu_eu_efficiency_patt, dpcpp_profiler_output).group(1))
 
         return {"cuda_gpu_time": cuda_gpu_time,

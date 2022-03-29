@@ -30,7 +30,7 @@ def profile(cuda_exec: str, dpcpp_exec: str, timeout: int) -> dict:
         result = subprocess.run(cuda_profile_gpu_cmd.split(), timeout=timeout, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, encoding="utf-8")
 
-        cuda_profiler_output = result.stdout
+        cuda_profiler_output = " ".join(result.stdout.split()).strip()
         cuda_gpu_time_list = re.findall(cuda_gpu_time_patt, cuda_profiler_output)
         cuda_gpu_sm_active_list = re.findall(cuda_gpu_sm_active_patt, cuda_profiler_output)
         cuda_gpu_time = 0.0

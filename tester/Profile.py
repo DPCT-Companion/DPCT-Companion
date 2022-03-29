@@ -23,7 +23,7 @@ import subprocess
 
 def profile(cuda_exec: str, dpcpp_exec: str, timeout: int) -> dict:
     try:
-        cuda_profile_gpu_cmd = "ncu {}".format(cuda_exec)
+        cuda_profile_gpu_cmd = "ncu --target-processes all {}".format(cuda_exec)
         cuda_gpu_time_patt = re.compile(r"Duration usecond (\d+\.\d+)")
         cuda_gpu_sm_active_patt = re.compile(r"Compute \(SM\) \[%] % (\d+\.\d+)")
         print("Profiling Original CUDA program. Timeout is {} seconds.".format(timeout))

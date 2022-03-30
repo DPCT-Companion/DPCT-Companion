@@ -19,7 +19,7 @@ try:
 except docker.errors.ImageNotFound:
     print("Building the image. This may take about more than 30 minutes.")
     srcPath = path.dirname(path.realpath(__file__))
-    client.images.build(path=path.join(srcPath, "patcher"), tag=IMG_NAME)
+    client.images.build(path=path.join(srcPath, "warning_fixer"), tag=IMG_NAME)
     print("Build success.")
 
 client.containers.run(IMG_NAME, command=args, volumes={path.abspath(projectPath): {"bind": "/app/data", "mode": "rw"}},

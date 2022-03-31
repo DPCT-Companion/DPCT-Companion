@@ -32,7 +32,7 @@ if __name__ == "__main__":
     elif args.command == "tester":
         if args.check and len(args.reports) != 2:
             parser.error("Two partial reports should be given in check mode.")
-        config_path = args.config_path
+        config_path = args.config
         platform = args.platform
         if platform == "both":
             platform = "cuda,dpcpp"

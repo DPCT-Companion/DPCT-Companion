@@ -42,9 +42,9 @@ def profile_cuda(cuda_exec, test_cases, timeout):
             for time in cuda_gpu_time_list:
                 cur_time = float(time[1])
                 if time[0] == "msecond":
-                    cur_time *= 1000
+                    cur_time *= 1
                 elif time[0] == "second":
-                    cur_time *= 1000000
+                    cur_time *= 1000
                 cuda_gpu_time += cur_time
             cuda_gpu_sm_active = 0.0
             for time in cuda_gpu_sm_active_list:
@@ -75,7 +75,7 @@ def profile_dpcpp(dpcpp_exec, test_cases, timeout):
             result = subprocess.run(dpcpp_profile_gpu_cmd.format(full_command).split(), timeout=timeout,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
             dpcpp_profiler_output = result.stdout
-            dpcpp_gpu_time = float(re.search(dpcpp_gpu_time_patt, dpcpp_profiler_output).group(1)) * 1000000.0
+            dpcpp_gpu_time = float(re.search(dpcpp_gpu_time_patt, dpcpp_profiler_output).group(1)) * 1000.0
             dpcpp_gpu_eu_active = 100.0 - float(re.search(dpcpp_gpu_eu_efficiency_patt, dpcpp_profiler_output).group(1))
             dpcpp_profile_result.append({"dpcpp_gpu_time": dpcpp_gpu_time, "dpcpp_gpu_eu_active": dpcpp_gpu_eu_active})
         except subprocess.TimeoutExpired as e:
@@ -100,8 +100,8 @@ def profile(config, test_cases, platform, timeout):
         print("Profiler result for test case", i)
         if "cuda" in platform:
             cr = cuda_profile_result[i]
-            print("CUDA:\tGPU Time: " + str(cr["cuda_gpu_time"]) + "\tSM Active: " + str(cr["cuda_gpu_sm_active"]))
+            print("CUDA:\tGPU Time:", "%.2f"%(cr["cuda_gpu_time"]) + "ms\tSM Active:", "%.2f%%"%(cr["cuda_gpu_sm_active"]))
         if "dpcpp" in platform:
             dr = dpcpp_profile_result[i]
-            print("DPC++:\tGPU Time: " + str(dr["dpcpp_gpu_time"]) + "\tEU Active: " + str(dr["dpcpp_gpu_eu_active"]))
+            print("DPC++:\tGPU Time:", "%.2f"%(dr["dpcpp_gpu_time"]) + "ms\tEU Active: ", "%.2f%%"%(dr["dpcpp_gpu_eu_active"]))
         print()

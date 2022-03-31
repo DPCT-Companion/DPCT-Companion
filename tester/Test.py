@@ -1,5 +1,9 @@
 import asyncio
 import os
+import pickle
+
+from tester.Build import build
+from tester.Checker import check_all, report
 
 
 async def get_outputs(args: list, steps: list, exec: str):
@@ -75,3 +79,26 @@ def do_test(test_cases: list, cuda_exec: str, dpcpp_exec: str, platform: str) ->
         dpcpp_result = None
 
     return cuda_result, dpcpp_result
+
+
+def run_tester(config, test_cases, platform, check, reports):
+    # no need to build the target when mode is check
+    if not check:
+        cuda_exec, dpcpp_exec = build(config["build"], platform)
+        cuda_result, dpcpp_result = do_test(test_cases, cuda_exec, dpcpp_exec, platform)
+
+        if platform == "cuda":
+            with open("cuda_test_result.par", "wb") as f:
+                pickle.dump(cuda_result, f)
+        if platform == "dpcpp":
+            with open("dpcpp_test_result.par", "wb") as f:
+                pickle.dump(dpcpp_result, f)
+
+    if check:
+        with open(reports[0], "rb") as f:
+            cuda_result = pickle.load(f)
+        with open(reports[1], "rb") as f:
+            dpcpp_result = pickle.load(f)
+    if check or platform == "cuda,dpcpp":
+        check_results = check_all(test_cases, cuda_result, dpcpp_result)
+        report(check_results)

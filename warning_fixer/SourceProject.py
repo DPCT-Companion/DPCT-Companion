@@ -12,16 +12,25 @@ class SourceProject:
 
     def __init__(self, dpcpp_root_path, cuda_root_path, output_path, log_path):
         self.dpcpp_root_path = Path(dpcpp_root_path).resolve()
-        self.cuda_root_path = Path(cuda_root_path).resolve()
-        self.log_path = Path(log_path).resolve()
+        if cuda_root_path is None:
+            self.cuda_root_path = None
+        else:
+            self.cuda_root_path = Path(cuda_root_path).resolve()
+        if log_path is None:
+            self.log_path = None
+        else:
+            self.log_path = Path(log_path).resolve()
         # capture all files under dpcpp_root_path
         self.all_dpct_files = filter(
             lambda path: path.is_file() and not any([part for part in path.parts if part.startswith(".")]),
             self.dpcpp_root_path.rglob("*"))
         self.output_path = Path(output_path).resolve()
 
-        with open(self.log_path, "r") as f:
-            self.log_lines = f.readlines()
+        if self.log_path is not None:
+            with open(self.log_path, "r") as f:
+                self.log_lines = f.readlines()
+        else:
+            self.log_lines = []
         # the map to link warning instances with cuda files
         # each warning instance has a unique index, e.g., 63 in DPCT1015:63: Output needs adjustment.
         # the log of DPCT also includes this index, so we can locate the related cuda file using the log
@@ -51,28 +60,31 @@ class SourceProject:
                 if str(file).endswith(ext):
                     is_cuda_file = True
                     break
-            cuda_path = str(self.cuda_root_path.joinpath(file.relative_to(self.dpcpp_root_path)))
             if not is_cuda_file:
                 # if not cuda file, keep the file unchanged
                 with open(file, "r") as f:
                     new_file_content = f.read()
             else:
-                # DPCT naming convention
-                if cuda_path.endswith(".dp.hpp"):
-                    cuda_path = cuda_path[:-6] + "cuh"
-                elif (cuda_path.endswith(".cpp.dp.cpp") or
-                      cuda_path.endswith(".cc.dp.cpp") or
-                      cuda_path.endswith(".cxx.dp.cpp") or
-                      cuda_path.endswith(".C.dp.cpp")):
-                    cuda_path = cuda_path[:-7]
-                elif cuda_path.endswith(".dp.cpp"):
-                    cuda_path = cuda_path[:-6] + "cu"
-                # if we can link the dpcpp file with cuda files, we run the fixer with cuda files
-                # if not, we can still fix the warnings, but the categories which we can fix are limited
-                if str(cuda_path) in self.cuda_file_warning_map:
-                    fixer = SourceFile(str(file), cuda_path, self.cuda_file_warning_map[cuda_path])
-                else:
+                if self.cuda_root_path is None:
                     fixer = SourceFile(str(file), "", {})
+                else:
+                    cuda_path = str(self.cuda_root_path.joinpath(file.relative_to(self.dpcpp_root_path)))
+                    # DPCT naming convention
+                    if cuda_path.endswith(".dp.hpp"):
+                        cuda_path = cuda_path[:-6] + "cuh"
+                    elif (cuda_path.endswith(".cpp.dp.cpp") or
+                          cuda_path.endswith(".cc.dp.cpp") or
+                          cuda_path.endswith(".cxx.dp.cpp") or
+                          cuda_path.endswith(".C.dp.cpp")):
+                        cuda_path = cuda_path[:-7]
+                    elif cuda_path.endswith(".dp.cpp"):
+                        cuda_path = cuda_path[:-6] + "cu"
+                    # if we can link the dpcpp file with cuda files, we run the fixer with cuda files
+                    # if not, we can still fix the warnings, but the categories which we can fix are limited
+                    if str(cuda_path) in self.cuda_file_warning_map:
+                        fixer = SourceFile(str(file), cuda_path, self.cuda_file_warning_map[cuda_path])
+                    else:
+                        fixer = SourceFile(str(file), "", {})
                 fixer.fix_warnings()
                 new_file_content = "".join([l.line for l in fixer.lines])
             new_path = self.output_path.joinpath(file.relative_to(self.dpcpp_root_path))
@@ -81,23 +93,3 @@ class SourceProject:
                 new_path.parent.mkdir(parents=True)
             with open(new_path, "w") as f:
                 f.write(new_file_content)
-
-
-if __name__ == "__main__":
-    sys.path.append(str(Path(__file__).resolve().parents[1]))
-    parser = argparse.ArgumentParser(description="Warning fixer of DPCT-Companion")
-    parser.add_argument("--dpcpp-root-path", type=str, help="Path of dpct out-root")
-    parser.add_argument("--cuda-root-path", type=str, help="Path of dpct in-root")
-    parser.add_argument("--output-path", type=str, help="Output path for the fixed code")
-    parser.add_argument("--log-path", type=str, help="Path of dpct log")
-    args = parser.parse_args()
-
-    if args.dpcpp_root_path and args.cuda_root_path and args.output_path and args.log_path:
-
-        project = SourceProject(dpcpp_root_path=args.dpcpp_root_path,
-                                cuda_root_path=args.cuda_root_path,
-                                output_path=args.output_path,
-                                log_path=args.log_path)
-        project.fix_project_warnings()
-    else:
-        parser.print_usage()

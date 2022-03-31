@@ -1,43 +1,46 @@
 import unittest
-from copy import copy
 from pathlib import Path
 
 from tester.Build import *
 
-path = str(Path(__file__).resolve().parent)
-std_config = {"cuda-exec": f"{path}/a.out", "dpcpp-exec": f"{path}/b.out",
-              "cuda-script": f"g++ {path}/a.cpp -o {path}/a.out", "dpcpp-script": f"g++ {path}/b.cpp -o {path}/b.out"}
-
 
 class BuildTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.path = str(Path(__file__).resolve().parent.joinpath("test_resources"))
+        self.std_config = {"cuda-exec": f"{self.path}/a.out", "dpcpp-exec": f"{self.path}/b.out",
+                      "cuda-script": f"g++ {self.path}/a.cpp -o {self.path}/a.out",
+                      "dpcpp-script": f"g++ {self.path}/b.cpp -o {self.path}/b.out"}
+
     def test_build_success(self):
-        self.assertEqual(build(std_config), (f"{path}/a.out", f"{path}/b.out"))
+        self.assertEqual(build(self.std_config, "cuda,dpcpp"), (f"{self.path}/a.out", f"{self.path}/b.out"))
 
     def test_build_success_without_script(self):
-        config = copy(std_config)
+        config = self.std_config
         del (config["cuda-script"])
         del(config["dpcpp-script"])
-        self.assertEqual(build(std_config), (f"{path}/a.out", f"{path}/b.out"))
+        self.assertEqual(build(self.std_config, "cuda,dpcpp"), (f"{self.path}/a.out", f"{self.path}/b.out"))
 
     def test_no_cuda_exec(self):
-        config = copy(std_config)
+        config = self.std_config
         del(config["cuda-exec"])
 
         def _build():
-            build(config)
+            build(config, "cuda,dpcpp")
         self.assertRaises(Exception, _build, msg="fail: no build.cuda-exec")
+        self.assertEqual(build(config, "dpcpp"), ("", f"{self.path}/b.out"))
 
     def test_no_dpcpp_exec(self):
-            config = copy(std_config)
-            del (config["dpcpp-exec"])
+        config = self.std_config
+        del (config["dpcpp-exec"])
 
-            def _build():
-                build(config)
+        def _build():
+            build(config, "cuda,dpcpp")
 
-            self.assertRaises(Exception, _build, msg="fail: no build.dpcpp-exec")
+        self.assertRaises(Exception, _build, msg="fail: no build.dpcpp-exec")
+        self.assertEqual(build(config, "cuda"), (f"{self.path}/a.out", ""))
 
     def test_bad_cuda_format(self):
-        config = copy(std_config)
+        config = self.std_config
         config["cuda-exec"] = 42
 
         def _build():
@@ -46,7 +49,7 @@ class BuildTest(unittest.TestCase):
         self.assertRaises(Exception, _build, msg="fail: build.cuda-exec should be a string")
 
     def test_bad_dpcpp_format(self):
-        config = copy(std_config)
+        config = self.std_config
         config["dpcpp-exec"] = 42
 
         def _build():
@@ -55,7 +58,7 @@ class BuildTest(unittest.TestCase):
         self.assertRaises(Exception, _build, msg="fail: build.cuda-dpcpp should be a string")
 
     def test_bad_cuda_script_format(self):
-        config = copy(std_config)
+        config = self.std_config
         config["cuda-script"] = 42
 
         def _build():
@@ -64,7 +67,7 @@ class BuildTest(unittest.TestCase):
         self.assertRaises(Exception, _build, msg="fail: build.cuda-script should be a string")
 
     def test_bad_dpcpp_script_format(self):
-        config = copy(std_config)
+        config = self.std_config
         config["cuda-script"] = 42
 
         def _build():

@@ -24,7 +24,7 @@ import subprocess
 def profile(cuda_exec: str, dpcpp_exec: str, timeout: int) -> dict:
     try:
         cuda_profile_gpu_cmd = "ncu --target-processes all --replay-mode application --app-replay-buffer memory {}".format(cuda_exec)
-        cuda_gpu_time_patt = re.compile(r"Duration usecond (\d+\.\d+)")
+        cuda_gpu_time_patt = re.compile(r"Duration ([um]?second) (\d+\.\d+)")
         cuda_gpu_sm_active_patt = re.compile(r"Compute \(SM\) \[%] % (\d+\.\d+)")
         print("Profiling Original CUDA program. Timeout is {} seconds.".format(timeout))
         result = subprocess.run(cuda_profile_gpu_cmd.split(), timeout=timeout, stdout=subprocess.PIPE,
@@ -35,7 +35,12 @@ def profile(cuda_exec: str, dpcpp_exec: str, timeout: int) -> dict:
         cuda_gpu_sm_active_list = re.findall(cuda_gpu_sm_active_patt, cuda_profiler_output)
         cuda_gpu_time = 0.0
         for time in cuda_gpu_time_list:
-            cuda_gpu_time += float(time)
+            cur_time = float(time[1])
+            if time[0] == "msecond":
+                cur_time *= 1000
+            elif time[0] == "second":
+                cur_time *= 1000000
+            cuda_gpu_time += cur_time
         cuda_gpu_sm_active = 0.0
         for time in cuda_gpu_sm_active_list:
             cuda_gpu_sm_active += float(time)

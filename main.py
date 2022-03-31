@@ -14,7 +14,7 @@ if __name__ == "__main__":
     fixer_parser.add_argument("-l", "--log-path", type=str, help="Path of dpct log")
 
     tester_parser = subparsers.add_parser("tester", help="Test harness")
-    tester_parser.add_argument("--check", action="store_true", help="Mode of the tests harness.")
+    tester_parser.add_argument("--check", action="store_true", help="Mode of the test harness.")
     tester_parser.add_argument("-p", "--platform", type=str, default="both", choices=["cuda", "dpcpp", "both"],
                                help="The platform where the tests run.")
     tester_parser.add_argument("config", type=str, help="Path of the configuration file")

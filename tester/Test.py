@@ -46,10 +46,10 @@ async def get_all_tests(test_cases: list, exec: str) -> list:
 
 
 def do_test(test_cases: list, cuda_exec: str, dpcpp_exec: str, platform: str) -> any:
-    """generate tests results
+    """generate test results
 
     Args:
-        test_cases (list): list of loaded objects from yaml tests files
+        test_cases (list): list of loaded objects from yaml test files
         cuda_exec (str): path of cuda executable
         dpcpp_exec (str): path of dpcpp executable
         mode (str): mode of the tests, could be partial or full

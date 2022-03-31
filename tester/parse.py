@@ -16,13 +16,13 @@ def run_tester(config_path, platform, check, reports):
         raise Exception("fail: bad build structure")
 
     if "test" not in config.keys():
-        raise Exception("fail: no tests")
-    if "cases" not in config["tests"].keys():
-        raise Exception("fail: no tests.cases")
-    if isinstance(type(config["tests"]["cases"]), list):
-        raise Exception("fail: tests.cases should be a list")
+        raise Exception("fail: no test")
+    if "cases" not in config["test"].keys():
+        raise Exception("fail: no test.cases")
+    if isinstance(type(config["test"]["cases"]), list):
+        raise Exception("fail: test.cases should be a list")
     test_cases = []
-    for case_path in config["tests"]["cases"]:
+    for case_path in config["test"]["cases"]:
         with open(case_path, mode="r", encoding="UTF-8") as case_file:
             case = yaml.load(case_file, Loader=yaml.CLoader)
             test_cases.append(case)

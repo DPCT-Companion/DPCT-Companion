@@ -15,7 +15,7 @@ def run_tester(config_path, platform, check, reports):
     if type(config["build"]) is not dict:
         raise Exception("fail: bad build structure")
 
-    if "tests" not in config.keys():
+    if "test" not in config.keys():
         raise Exception("fail: no tests")
     if "cases" not in config["tests"].keys():
         raise Exception("fail: no tests.cases")

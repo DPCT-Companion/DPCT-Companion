@@ -21,4 +21,3 @@ def parse(config_path):
             case = yaml.load(case_file, Loader=yaml.CLoader)
             test_cases.append(case)
     return config, test_cases
-

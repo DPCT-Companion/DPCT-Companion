@@ -1,22 +1,3 @@
-"""
-Tester module to profile the built executable on GPU.
-For NVIDIA CUDA, we use NVIDIA Nsight Compute (NCU), and for DPC++ we use Intel VTune profiler.
-Before running it, Intel oneAPI environment must be initialized and NVIDIA Nsight Compute (NCU) must be installed.
-Profiler is run on SYNC manner with a timeout.
-
-Args:
-    cuda_exec (str): The CUDA executable name.
-    dpcpp_exec (str): The DPC++ executable name.
-    timeout (int): Timeout in seconds to terminate the profiler.
-
-Returns:
-    profiler_message (dict: {str, float}):
-        "cuda_gpu_time": CUDA GPU active time in microseconds.
-        "cuda_gpu_sm_active": NVIDIA GPU SM (Streaming Multiprocessor) active percentage.
-        "dpcpp_gpu_time": DPC++ GPU active time in microseconds.
-        "dpcpp_gpu_eu_idle": Intel GPU EU (Execution Unit) active percentage.
-"""
-
 import re
 import subprocess
 
@@ -24,6 +5,24 @@ from tester.Build import build
 
 
 def profile_cuda(cuda_exec, test_cases, timeout):
+    """
+    Tester module to profile the built executable on GPU.
+    For NVIDIA CUDA, we use NVIDIA Nsight Compute (NCU), and for DPC++ we use Intel VTune profiler.
+    Before running it, Intel oneAPI environment must be initialized and NVIDIA Nsight Compute (NCU) must be installed.
+    Profiler is run on SYNC manner with a timeout.
+
+    Args:
+        cuda_exec (str): The CUDA executable name.
+        dpcpp_exec (str): The DPC++ executable name.
+        timeout (int): Timeout in seconds to terminate the profiler.
+
+    Returns:
+        profiler_message (dict: {str, float}):
+            "cuda_gpu_time": CUDA GPU active time in microseconds.
+            "cuda_gpu_sm_active": NVIDIA GPU SM (Streaming Multiprocessor) active percentage.
+            "dpcpp_gpu_time": DPC++ GPU active time in microseconds.
+            "dpcpp_gpu_eu_idle": Intel GPU EU (Execution Unit) active percentage.
+    """
     cuda_profile_gpu_cmd = "ncu --target-processes all --replay-mode application --app-replay-buffer memory {}"
     cuda_gpu_time_patt = re.compile(r"Duration ([um]?second) (\d+\.\d+)")
     cuda_gpu_sm_active_patt = re.compile(r"Compute \(SM\) \[%] % (\d+\.\d+)")
@@ -100,8 +99,10 @@ def profile(config, test_cases, platform, timeout):
         print("Profiler result for test case", i)
         if "cuda" in platform:
             cr = cuda_profile_result[i]
-            print("CUDA:\tGPU Time:", "%.2f"%(cr["cuda_gpu_time"]) + "ms\tSM Active:", "%.2f%%"%(cr["cuda_gpu_sm_active"]))
+            print("CUDA:\tGPU Time:", "%.2f" % (cr["cuda_gpu_time"]) + "ms\tSM Active:",
+                  "%.2f%%" % (cr["cuda_gpu_sm_active"]))
         if "dpcpp" in platform:
             dr = dpcpp_profile_result[i]
-            print("DPC++:\tGPU Time:", "%.2f"%(dr["dpcpp_gpu_time"]) + "ms\tEU Active: ", "%.2f%%"%(dr["dpcpp_gpu_eu_active"]))
+            print("DPC++:\tGPU Time:", "%.2f" % (dr["dpcpp_gpu_time"]) + "ms\tEU Active: ",
+                  "%.2f%%" % (dr["dpcpp_gpu_eu_active"]))
         print()

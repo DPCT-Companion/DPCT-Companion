@@ -1,5 +1,6 @@
 from os import system
 from sys import argv
+
 from warning_fixer.SourceProject import *
 
 system(f"cd data && mkdir final_output && dpct {' '.join(argv[1:])}")

@@ -1,19 +1,19 @@
 args:
-    - arg1
-    - arg2
+  - arg1
+  - arg2
 
 steps:
-    - sleep: 2
-    - check-stdout:
-        name: check1
-        omit-line: [1]
-    - input-stdin:
-        key: hello!
-        omit-newline: False
-    - sleep: 2
-    - check-stdout:
-        name: check2
-        omit-line: [1]
-    - check-stderr:
-        name: check3
-        omit-line: [2]
+  - sleep: 2
+  - check-stdout:
+      name: check1
+      omit-line: [ 1 ]
+  - input-stdin:
+      key: hello!
+      omit-newline: False
+  - sleep: 2
+  - check-stdout:
+      name: check2
+      omit-line: [ 1 ]
+  - check-stderr:
+      name: check3
+      omit-line: [ 2 ]

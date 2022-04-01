@@ -76,8 +76,8 @@ def report(result):
     case_stats = []
     for case in result:
         for check in case:
-            check.o1 = [i+'\n' for i in check.o1.splitlines()]
-            check.o2 = [i+'\n' for i in check.o2.splitlines()]
+            check.o1 = [i + '\n' for i in check.o1.splitlines()]
+            check.o2 = [i + '\n' for i in check.o2.splitlines()]
         case_stat = {
             "total": len(case),
             "pass": sum(check.pass_check and (check.c1 == 0 or check.c1 is None) and (check.c2 == 0 or check.c2 is None) for check in case),
@@ -93,7 +93,7 @@ def report(result):
         "crashed": sum(case["crashed"] for case in case_stats),
         "umatch": sum(case["umatch"] for case in case_stats)}
 
-    with open('report.html', 'w' ) as f:
+    with open('report.html', 'w') as f:
         r = template.render(stat=stat, case_stats=case_stats, difflib=difflib, list=list)
         f.write(r)
     return r

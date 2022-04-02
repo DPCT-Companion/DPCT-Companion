@@ -33,9 +33,15 @@ def profile_cuda(cuda_exec, test_cases, timeout):
         if args is None:
             full_command = cuda_exec
         else:
-            if not all(map(lambda x: isinstance(x, str), args)):
-                raise Exception("Illegal arguments.")
-            full_command = " ".join([cuda_exec] + args)
+            new_args = []
+            for arg in args:
+                if arg is None:
+                    continue
+                try:
+                    new_args.append(str(arg))
+                except Exception:
+                    raise Exception("Illegal argument")
+            full_command = " ".join([cuda_exec] + new_args)
         try:
             result = subprocess.run(cuda_profile_gpu_cmd.format(full_command).split(), timeout=timeout,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
@@ -74,13 +80,18 @@ def profile_dpcpp(dpcpp_exec, test_cases, timeout):
     dpcpp_profile_result = []
     for case in test_cases:
         args = case["args"]
-        args = case["args"]
         if args is None:
             full_command = dpcpp_exec
         else:
-            if not all(map(lambda x: isinstance(x, str), args)):
-                raise Exception("Illegal arguments.")
-            full_command = " ".join([dpcpp_exec] + args)
+            new_args = []
+            for arg in args:
+                if arg is None:
+                    continue
+                try:
+                    new_args.append(str(arg))
+                except Exception:
+                    raise Exception("Illegal argument")
+            full_command = " ".join([cuda_exec] + new_args)
         try:
             result = subprocess.run(dpcpp_profile_gpu_cmd.format(full_command).split(), timeout=timeout,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")

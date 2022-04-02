@@ -17,11 +17,17 @@ async def get_outputs(args, steps, exec):
             stderr=asyncio.subprocess.PIPE
         )
     else:
-        if not all(map(lambda x: isinstance(x, str), args)):
-            raise Exception("Illegal arguments.")
+        new_args = []
+        for arg in args:
+            if arg is None:
+                continue
+            try:
+                new_args.append(str(arg))
+            except Exception:
+                raise Exception("Illegal argument")
         proc = await asyncio.subprocess.create_subprocess_exec(
             exec,
-            *args,
+            *new_args,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE

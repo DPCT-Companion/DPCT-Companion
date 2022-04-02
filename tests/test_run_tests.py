@@ -14,7 +14,7 @@ class TestTest(unittest.TestCase):
 
     def test_test_success(self):
         steps = [{'input-stdin': {'key': 42, 'omit-newline': False}}, {'sleep': 1},
-                {'check-stdout': {'name': 'check1', 'omit-line': [2]}}]
+                 {'check-stdout': {'name': 'check1', 'omit-line': [2]}}]
         args = ["arg1", "arg2"]
         case = {"args": args, "steps": steps}
         cuda_result, dpcpp_result = do_test([case], f"{self.path}/a.out", f"{self.path}/b.out", "cuda,dpcpp")

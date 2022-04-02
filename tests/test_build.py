@@ -8,8 +8,8 @@ class BuildTest(unittest.TestCase):
     def setUp(self) -> None:
         self.path = str(Path(__file__).resolve().parent.joinpath("test_resources"))
         self.std_config = {"cuda-exec": f"{self.path}/a.out", "dpcpp-exec": f"{self.path}/b.out",
-                      "cuda-script": f"g++ {self.path}/a.cpp -o {self.path}/a.out",
-                      "dpcpp-script": f"g++ {self.path}/b.cpp -o {self.path}/b.out"}
+                           "cuda-script": f"g++ {self.path}/a.cpp -o {self.path}/a.out",
+                           "dpcpp-script": f"g++ {self.path}/b.cpp -o {self.path}/b.out"}
 
     def test_build_success(self):
         self.assertEqual(build(self.std_config, "cuda,dpcpp"), (f"{self.path}/a.out", f"{self.path}/b.out"))
@@ -17,15 +17,16 @@ class BuildTest(unittest.TestCase):
     def test_build_success_without_script(self):
         config = self.std_config
         del (config["cuda-script"])
-        del(config["dpcpp-script"])
+        del (config["dpcpp-script"])
         self.assertEqual(build(self.std_config, "cuda,dpcpp"), (f"{self.path}/a.out", f"{self.path}/b.out"))
 
     def test_no_cuda_exec(self):
         config = self.std_config
-        del(config["cuda-exec"])
+        del (config["cuda-exec"])
 
         def _build():
             build(config, "cuda,dpcpp")
+
         self.assertRaises(Exception, _build, msg="fail: no build.cuda-exec")
         self.assertEqual(build(config, "dpcpp"), ("", f"{self.path}/b.out"))
 

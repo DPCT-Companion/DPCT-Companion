@@ -74,7 +74,13 @@ def profile_dpcpp(dpcpp_exec, test_cases, timeout):
     dpcpp_profile_result = []
     for case in test_cases:
         args = case["args"]
-        full_command = " ".join([dpcpp_exec] + args)
+        args = case["args"]
+        if args is None:
+            full_command = dpcpp_exec
+        else:
+            if not all(map(lambda x: isinstance(x, str), args)):
+                raise Exception("Illegal arguments.")
+            full_command = " ".join([dpcpp_exec] + args)
         try:
             result = subprocess.run(dpcpp_profile_gpu_cmd.format(full_command).split(), timeout=timeout,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")

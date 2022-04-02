@@ -1,6 +1,6 @@
 args:
-  - arg1
-  - arg2
+  - "arg1"
+  - 2
 
 steps:
   - sleep: 2

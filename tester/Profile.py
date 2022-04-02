@@ -91,7 +91,7 @@ def profile_dpcpp(dpcpp_exec, test_cases, timeout):
                     new_args.append(str(arg))
                 except Exception:
                     raise Exception("Illegal argument")
-            full_command = " ".join([cuda_exec] + new_args)
+            full_command = " ".join([dpcpp_exec] + new_args)
         try:
             result = subprocess.run(dpcpp_profile_gpu_cmd.format(full_command).split(), timeout=timeout,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")

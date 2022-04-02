@@ -6,7 +6,7 @@ from tester.Profile import *
 class ProfilerTest(unittest.TestCase):
     def test_profiler(self):
         # TODO: We need a CUDA / DPC++ application which actually used the GPU here.
-        result = profile("a.out", "b.out", 1200)
+        result = profile("a.out", "b.out", "cuda,dpcpp", 1200)
 
         self.assertIsInstance(result["cuda_gpu_time"], float)
         self.assertIsInstance(result["cuda_gpu_sm_active"], float)

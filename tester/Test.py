@@ -6,16 +6,26 @@ from tester.Build import build
 from tester.Checker import check_all, report
 
 
-async def get_outputs(args: list, steps: list, exec: str):
+async def get_outputs(args, steps, exec):
     out1 = []
     code = []
-    proc = await asyncio.subprocess.create_subprocess_exec(
-        exec,
-        *args,
-        stdin=asyncio.subprocess.PIPE,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
-    )
+    if args is None:
+        proc = await asyncio.subprocess.create_subprocess_exec(
+            exec,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+    else:
+        if not all(map(lambda x: isinstance(x, str), args)):
+            raise Exception("Illegal arguments.")
+        proc = await asyncio.subprocess.create_subprocess_exec(
+            exec,
+            *args,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
     for step in steps:
         if 'check-stdout' in step:
             out1.append((await proc.stdout.read(1024)).decode())

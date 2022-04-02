@@ -1,7 +1,6 @@
 import unittest
-from os.path import *
-from tester.parse import *
-from tester.Checker import Checker
+
+from tester.Checker import Checker, report
 
 
 class TestReport(unittest.TestCase):

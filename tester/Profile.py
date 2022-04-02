@@ -31,7 +31,12 @@ def profile_cuda(cuda_exec, test_cases, timeout):
     cuda_profile_result = []
     for case in test_cases:
         args = case["args"]
-        full_command = " ".join([cuda_exec] + args)
+        if args is None:
+            full_command = cuda_exec
+        else:
+            if not all(map(lambda x: isinstance(x, str), args)):
+                raise Exception("Illegal arguments.")
+            full_command = " ".join([cuda_exec] + args)
         try:
             result = subprocess.run(cuda_profile_gpu_cmd.format(full_command).split(), timeout=timeout,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")

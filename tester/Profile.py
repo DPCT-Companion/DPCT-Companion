@@ -51,8 +51,8 @@ def profile_cuda(cuda_exec, test_cases, timeout):
             cuda_gpu_time = 0.0
             for time in cuda_gpu_time_list:
                 cur_time = float(time[1])
-                if time[0] == "msecond":
-                    cur_time *= 1
+                if time[0] == "usecond":
+                    cur_time /= 1000
                 elif time[0] == "second":
                     cur_time *= 1000
                 cuda_gpu_time += cur_time

@@ -71,15 +71,6 @@ def profile_cuda(cuda_exec, test_cases, timeout):
             print(e.stderr)
             cuda_profile_result.append({"cuda_gpu_time": 0.0, "cuda_gpu_sm_active": 0.0})
 
-        except subprocess.CalledProcessError as e:
-            print("Error occurred for test case " + str(i)
-                  + ". Complete output message for the profiler is printed below for reference:\n")
-            print("========stdout========")
-            print(e.stdout)
-            print("\n========stderr========")
-            print(e.stderr)
-            cuda_profile_result.append({"cuda_gpu_time": 0.0, "cuda_gpu_sm_active": 0.0})
-
         except Exception as e:
             print("Error occurred for test case " + str(i) + ". ")
             cuda_profile_result.append({"cuda_gpu_time": 0.0, "cuda_gpu_sm_active": 0.0})
@@ -115,14 +106,6 @@ def profile_dpcpp(dpcpp_exec, test_cases, timeout):
             dpcpp_profile_result.append({"dpcpp_gpu_time": dpcpp_gpu_time, "dpcpp_gpu_eu_active": dpcpp_gpu_eu_active})
         except subprocess.TimeoutExpired as e:
             print("Timed out for test case " + str(i)
-                  + ". Complete output message for the profiler is printed below for reference:\n")
-            print("========stdout========")
-            print(e.stdout)
-            print("\n========stderr========")
-            print(e.stderr)
-            dpcpp_profile_result.append({"dpcpp_gpu_time": 0.0, "dpcpp_gpu_eu_active": 0.0})
-        except subprocess.CalledProcessError as e:
-            print("Error occurred for test case " + str(i)
                   + ". Complete output message for the profiler is printed below for reference:\n")
             print("========stdout========")
             print(e.stdout)

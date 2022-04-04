@@ -1,0 +1,10 @@
+build: 
+  cuda-script: make -C cuda
+  cuda-exec: cuda/stencil_1d
+  dpcpp-script: make -C dpcpp
+  dpcpp-exec: dpcpp/main
+test: 
+  cases: [test.yml]
+  report: stencil1d-report.html 
+clean: 
+  script: rm stencil1d-cuda/stencil_1d && rm stencil1d-fixed/stencil_1d

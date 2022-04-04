@@ -1,0 +1,6 @@
+args:
+  - 100
+steps:
+  - sleep: 10
+  - check-stdout: 
+      name: stdout1

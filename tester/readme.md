@@ -21,9 +21,9 @@ pip install -r requirements.txt
 
 Use:
 ```
-python run.py <configPath>
+python main.py tester <args>
 ```
-where <configPath> is the path to your testing configuration .yaml file
+run the above command in the root directory
 
 A yaml configuration file is utilized to specify details of all provided artifacts. The listing below shows an example of configuration file. 
 ```

@@ -78,7 +78,7 @@ def profile_cuda(cuda_exec, test_cases, timeout):
             print(e.stdout)
             print("\n========stderr========")
             print(e.stderr)
-            cuda_profile_result.append({"cuda_gpu_time": 0.0, "cuda_gpu_eu_active": 0.0})
+            cuda_profile_result.append({"cuda_gpu_time": 0.0, "cuda_gpu_sm_active": 0.0})
 
         except Exception as e:
             print("Error occurred for test case " + str(i) + ". ")

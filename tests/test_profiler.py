@@ -1,9 +1,7 @@
 import os
 import subprocess
 import unittest
-from io import StringIO
 from pathlib import Path
-from unittest.mock import patch
 
 from tester.Profile import *
 from tester.parse import parse
@@ -55,14 +53,19 @@ class ProfilerTest(unittest.TestCase):
         else:
             self.assertEqual(result_dpcpp[0]["dpcpp_gpu_time"], 0.0)
 
-    @patch('sys.stdout', new_callable=StringIO)
-    def test_profiler_dpcpp(self, stdout):
+    def test_profiler_dpcpp(self):
         if not self.has_dpcpp or not self.has_vtune:
             return
         os.chdir(self.path)
         config, test_cases = parse(self.path.joinpath("build.yml"))
         profile(config, test_cases, "dpcpp", 1200)
-        print(stdout.getvalue())
+
+    def test_profiler_cuda(self):
+        if not self.has_cuda or not self.has_ncu:
+            return
+        os.chdir(self.path)
+        config, test_cases = parse(self.path.joinpath("build.yml"))
+        profile(config, test_cases, "cuda", 1200)
 
 
 if __name__ == '__main__':
